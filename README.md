@@ -23,6 +23,8 @@ obtain all of the required dependencies.
 ```
 # clone workflow into working directory
 git clone https://bitbucket.org/user/myworkflow.git path/to/workdir
+git submodule init
+git submodule sync
 cd path/to/workdir
 
 # edit config and workflow as needed

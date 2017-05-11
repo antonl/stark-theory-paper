@@ -1,0 +1,73 @@
+name: stark-theory-paper
+channels: !!python/tuple
+- defaults
+dependencies:
+- bokeh=0.12.4=py36_0
+- chest=0.2.3=py36_0
+- cloudpickle=0.2.2=py36_0
+- cycler=0.10.0=py36_0
+- dask=0.14.3=py36_0
+- dbus=1.10.10=0
+- expat=2.1.0=0
+- fontconfig=2.12.1=3
+- freetype=2.5.5=2
+- glib=2.50.2=1
+- gst-plugins-base=1.8.0=0
+- gstreamer=1.8.0=0
+- h5py=2.7.0=np112py36_0
+- hdf5=1.8.17=1
+- heapdict=1.0.0=py36_1
+- icu=54.1=0
+- jinja2=2.9.6=py36_0
+- jpeg=9b=0
+- libffi=3.2.1=1
+- libgcc=5.2.0=0
+- libgfortran=3.0.0=1
+- libiconv=1.14=0
+- libpng=1.6.27=0
+- libxcb=1.12=1
+- libxml2=2.9.4=0
+- locket=0.2.0=py36_1
+- markupsafe=0.23=py36_2
+- matplotlib=2.0.1=np112py36_0
+- mkl=2017.0.1=0
+- numpy=1.12.1=py36_0
+- openssl=1.0.2k=1
+- pandas=0.20.1=np112py36_0
+- partd=0.3.8=py36_0
+- pcre=8.39=1
+- pip=9.0.1=py36_1
+- pyparsing=2.1.4=py36_0
+- pyqt=5.6.0=py36_2
+- python=3.6.1=0
+- python-dateutil=2.6.0=py36_0
+- pytz=2017.2=py36_0
+- pyyaml=3.12=py36_0
+- qt=5.6.2=3
+- readline=6.2=2
+- requests=2.13.0=py36_0
+- scipy=0.19.0=np112py36_0
+- setuptools=27.2.0=py36_0
+- sip=4.18=py36_0
+- six=1.10.0=py36_0
+- sqlite=3.13.0=0
+- tk=8.5.18=0
+- toolz=0.8.2=py36_0
+- tornado=4.5.1=py36_0
+- wheel=0.29.0=py36_0
+- xz=5.2.2=1
+- yaml=0.1.6=0
+- zlib=1.2.8=3
+- pip:
+  - click==6.7
+  - decorator==4.0.11
+  - ipython-genutils==0.2.0
+  - pint==0.8
+  - pyqcfp (/u/home/aloukian/Documents/stark-theory-paper/darius-simulation)==0.1.0
+  - snakemake==3.12.0
+  - straitlets==0.3.0
+  - tqdm==4.11.2
+  - traitlets==4.3.2
+  - wrapt==1.10.10
+prefix: /home/aloukian/miniconda3/envs/stark-theory-paper
+

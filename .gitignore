@@ -1,1 +1,11 @@
 *.un~
+.snakemake
+*.h5
+*.wrk
+*.txt
+template-cfg.yaml
+metacfg.yaml
+inp*.inp
+outp*.outp
+*.text
+*.png
