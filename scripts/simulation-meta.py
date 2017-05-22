@@ -12,12 +12,22 @@ from pyqcfp.runqcfp import run_simulation
 import scipy.stats as stats
 import tqdm
 import sys
+import click
 
-if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print('Pass metacfg.yaml and template-cfg.yaml paths on the command line')
-        sys.exit(-1)
-
+@click.command('simulate')
+@click.argument('metacfg-path',
+                help='path to metacfg.yaml file',
+                type=click.Path(file_ok=True, dir_ok=False, exists=True,
+                                readable=True))
+@click.argument('templatecfg-path',
+                help='path to template-cfg.yaml file',
+                type=click.Path(file_ok=True, dir_ok=False, exists=True,
+                                readable=True))
+@click.option('-c',
+              '--ncores',
+              help='number of processes to use ',
+              default=1)
+def simulate(metacfg_path, templatecfg_path, ncores):
     # ------------------------------------------------------------------------------
     # Set some params and load configuration options
     def calculate_delta_cn(spec, ref):
@@ -29,11 +39,8 @@ if __name__ == '__main__':
         var = X.var()
         return mean, var
 
-    # check that a job-name directory exists in the work dir and look for
-    # configuration there
-
-    chkptpath = Path(sys.argv[1])
-    cfgpath = Path(sys.argv[2])
+    chkptpath = Path(metacfg_path)
+    cfgpath = Path(templatecfg_path)
 
     if chkptpath.exists():
         print('Found checkpoint in `{!s}`'.format(chkptpath))
@@ -107,7 +114,7 @@ if __name__ == '__main__':
     # ------------------------------------------------------------------------------
 
     # initialize pool of workers for running qcfp
-    pool = ProcessPoolExecutor(max_workers=20)
+    pool = ProcessPoolExecutor(max_workers=ncores)
 
     # combine the simulation pipeline
     make_pipeline = compose_transformations(*lst)
@@ -180,3 +187,6 @@ if __name__ == '__main__':
     datastore.close()
 
     print('Averaging completed.')
+
+if __name__ == '__main__':
+    simulate()
