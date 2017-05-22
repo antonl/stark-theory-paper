@@ -1,4 +1,5 @@
 import yaml
+import pathlib
 
 with open('config.yaml') as f:
     cfg = yaml.load(f)
@@ -6,6 +7,9 @@ with open('config.yaml') as f:
 TMPDIR=cfg['tmpdir']
 SCRATCHDIR=cfg['scratchdir']
 OUTPUTDIR=cfg['outputdir']
+
+SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
+MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
 
 rule make_spectral_densities:
     input:
@@ -49,10 +53,10 @@ rule run_2dess_sim:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
     output:
-        "{simdir}/pump-probe.h5"
+        "{simdir}/pump-probe.h5",
     shell:
         "cd {wildcards.simdir}; "
-        "python simulation-meta.py; "
+        "python {SIMSCRIPT_PATH} metacfg.yaml template-cfg.yaml; "
 
 rule prep_linear_sim:
     input:
@@ -62,7 +66,7 @@ rule prep_linear_sim:
         "{simdir}/template-cfg-linear.yaml"
     shell:
         "cd {wildcards.simdir}; "
-        "python make-cfg-linear.py; "
+        "python {MKLIN_PATH}; "
 
 rule run_linear_sim:
     input:
@@ -72,4 +76,4 @@ rule run_linear_sim:
         "{simdir}/absorption.h5",
     shell:
         "cd {wildcards.simdir}; "
-        "python simulation-meta.py; "
+        "python {SIMSCRIPT_PATH} metacfg.yaml template-cfg-linear.yaml; "

@@ -11,8 +11,13 @@ from pyqcfp.delayed import (SimulationCheckpoint, CfgIdentity,
 from pyqcfp.runqcfp import run_simulation
 import scipy.stats as stats
 import tqdm
+import sys
 
 if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print('Pass metacfg.yaml and template-cfg.yaml paths on the command line')
+        sys.exit(-1)
+
     # ------------------------------------------------------------------------------
     # Set some params and load configuration options
     def calculate_delta_cn(spec, ref):
@@ -27,7 +32,8 @@ if __name__ == '__main__':
     # check that a job-name directory exists in the work dir and look for
     # configuration there
 
-    chkptpath = Path('metacfg.yaml')
+    chkptpath = Path(sys.argv[1])
+    cfgpath = Path(sys.argv[2])
 
     if chkptpath.exists():
         print('Found checkpoint in `{!s}`'.format(chkptpath))
@@ -35,8 +41,6 @@ if __name__ == '__main__':
     else:
         print('A checkpoint file is required at `{!s}`'.format(str(chkptpath)))
         exit(-1)
-
-    cfgpath = chkptpath.parent / 'template-cfg.yaml'
 
     if cfgpath.exists():
         cfg = pyqcfp.QcfpConfig.from_yaml_file(str(cfgpath))
