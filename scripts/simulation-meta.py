@@ -16,16 +16,13 @@ import click
 
 @click.command('simulate')
 @click.argument('metacfg-path',
-                help='path to metacfg.yaml file',
-                type=click.Path(file_ok=True, dir_ok=False, exists=True,
+                type=click.Path(file_okay=True, dir_okay=False, exists=True,
                                 readable=True))
 @click.argument('templatecfg-path',
-                help='path to template-cfg.yaml file',
-                type=click.Path(file_ok=True, dir_ok=False, exists=True,
+                type=click.Path(file_okay=True, dir_okay=False, exists=True,
                                 readable=True))
 @click.option('-c',
               '--ncores',
-              help='number of processes to use ',
               default=1)
 def simulate(metacfg_path, templatecfg_path, ncores):
     # ------------------------------------------------------------------------------

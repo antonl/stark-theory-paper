@@ -7,6 +7,7 @@ with open('config.yaml') as f:
 TMPDIR=cfg['tmpdir']
 SCRATCHDIR=cfg['scratchdir']
 OUTPUTDIR=cfg['outputdir']
+THREADS=cfg['threads']
 
 SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
 MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
@@ -54,9 +55,10 @@ rule run_2dess_sim:
         "{simdir}/metacfg.yaml",
     output:
         "{simdir}/pump-probe.h5",
+    threads: THREADS
     shell:
         "cd {wildcards.simdir}; "
-        "python {SIMSCRIPT_PATH} metacfg.yaml template-cfg.yaml; "
+        "python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml template-cfg.yaml; "
 
 rule prep_linear_sim:
     input:
@@ -74,6 +76,7 @@ rule run_linear_sim:
         "{simdir}/metacfg.yaml",
     output:
         "{simdir}/absorption.h5",
+    threads: THREADS
     shell:
         "cd {wildcards.simdir}; "
-        "python {SIMSCRIPT_PATH} metacfg.yaml template-cfg-linear.yaml; "
+        "python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml template-cfg-linear.yaml; "

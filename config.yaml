@@ -1,3 +1,4 @@
 outputdir: "/home/aloukian/Documents/stark-theory-paper/"
 tmpdir: "/dev/shm/simulations-aloukian/"
 scratchdir: "/dev/shm/simulations-aloukian/"
+threads: 20
