@@ -23,7 +23,9 @@ Ji = 2*lambda0*omega*gamma0/(omega**2 + gamma0**2)
 
 lbd = lambda0
 
-modes = pd.read_csv('oscillator-modes.csv', names=['wj', 'Sj'], delimiter=' ',
+modes = pd.read_csv('../rawdata/oscillator-modes.csv',
+                    names=['wj', 'Sj'],
+                    delimiter=' ',
                     skiprows=1)
 modes = modes.sort_values(by='wj')
 print(modes.tail())
@@ -103,13 +105,13 @@ extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
 '''
 fig.savefig('sims-spectral-densities.png', bbox_inches='tight')
 
-with open('Ji-spd.txt', 'w') as f:
+with open('../spectral-densities/Ji-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega, Ji))
-with open('Jii-spd.txt', 'w') as f:
+with open('../spectral-densities/Jii-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega, Jii))
-with open('Jnjp-spd.txt', 'w') as f:
+with open('../spectral-densities/Jnjp-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega, Jnjp))
-with open('Jlowfreq-spd.txt', 'w') as f:
+with open('../spectral-densities/Jlowfreq-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega_low, Jlowfreq))
-with open('Jgauss-spd.txt', 'w') as f:
+with open('../spectral-densities/Jgauss-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega, Jgauss))

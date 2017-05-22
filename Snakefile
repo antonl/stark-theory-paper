@@ -9,7 +9,7 @@ OUTPUTDIR=cfg['outputdir']
 
 rule make_spectral_densities:
     input:
-        "spectral-densities/oscillator-modes.csv"
+        "rawdata/oscillator-modes.csv"
     output:
         "spectral-densities/Ji-spd.txt",
         "spectral-densities/Jii-spd.txt",
@@ -18,7 +18,7 @@ rule make_spectral_densities:
         "spectral-densities/sims-spectral-densities.png"
     shell:
         "cd spectral-densities;"
-        "python make-spectral-densities.py"
+        "python ../scripts/make-spectral-densities.py"
 
 rule copy_spd:
     input:
@@ -37,7 +37,6 @@ rule prep_ddess_sim:
     output:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
-        touch("{simdir}/.made-2dess")
     shell:
         "cd {wildcards.simdir};"
         "PYQCFP_TMPDIR={TMPDIR}/{wildcards.simdir} "
@@ -49,34 +48,28 @@ rule run_2dess_sim:
     input:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
-        "{simdir}/.made-2dess"
     output:
         "{simdir}/pump-probe.h5"
     shell:
         "cd {wildcards.simdir}; "
         "python simulation-meta.py; "
-        "rm .made-2dess"
 
 rule prep_linear_sim:
     input:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
-        "{simdir}/.made-2dess"
     output:
-        touch("{simdir}/.made-linear")
+        "{simdir}/template-cfg-linear.yaml"
     shell:
         "cd {wildcards.simdir}; "
         "python make-cfg-linear.py; "
-        "rm .made-2dess"
 
 rule run_linear_sim:
     input:
-        "{simdir}/template-cfg.yaml",
+        "{simdir}/template-cfg-linear.yaml",
         "{simdir}/metacfg.yaml",
-        "{simdir}/.made-linear"
     output:
         "{simdir}/absorption.h5",
     shell:
         "cd {wildcards.simdir}; "
         "python simulation-meta.py; "
-        "rm .made-linear"
