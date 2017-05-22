@@ -1,4 +1,5 @@
 import yaml
+import pathlib
 
 with open('config.yaml') as f:
     cfg = yaml.load(f)
@@ -6,6 +7,9 @@ with open('config.yaml') as f:
 TMPDIR=cfg['tmpdir']
 SCRATCHDIR=cfg['scratchdir']
 OUTPUTDIR=cfg['outputdir']
+
+SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
+MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
 
 rule make_spectral_densities:
     input:
@@ -37,7 +41,6 @@ rule prep_ddess_sim:
     output:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
-        touch("{simdir}/.made-2dess")
     shell:
         "cd {wildcards.simdir};"
         "PYQCFP_TMPDIR={TMPDIR}/{wildcards.simdir} "
@@ -49,34 +52,28 @@ rule run_2dess_sim:
     input:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
-        "{simdir}/.made-2dess"
     output:
-        "{simdir}/pump-probe.h5"
+        "{simdir}/pump-probe.h5",
     shell:
         "cd {wildcards.simdir}; "
-        "python simulation-meta.py; "
-        "rm .made-2dess"
+        "python {SIMSCRIPT_PATH} metacfg.yaml template-cfg.yaml; "
 
 rule prep_linear_sim:
     input:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
-        "{simdir}/.made-2dess"
     output:
-        touch("{simdir}/.made-linear")
+        "{simdir}/template-cfg-linear.yaml"
     shell:
         "cd {wildcards.simdir}; "
-        "python make-cfg-linear.py; "
-        "rm .made-2dess"
+        "python {MKLIN_PATH}; "
 
 rule run_linear_sim:
     input:
-        "{simdir}/template-cfg.yaml",
+        "{simdir}/template-cfg-linear.yaml",
         "{simdir}/metacfg.yaml",
-        "{simdir}/.made-linear"
     output:
         "{simdir}/absorption.h5",
     shell:
         "cd {wildcards.simdir}; "
-        "python simulation-meta.py; "
-        "rm .made-linear"
+        "python {SIMSCRIPT_PATH} metacfg.yaml template-cfg-linear.yaml; "
