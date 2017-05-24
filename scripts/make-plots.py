@@ -270,6 +270,11 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     w3 = np.array(absfile['w3'])
 
     eigenenergies = fixed_energies2/1e3
+    s = str(figpath / 'linear-reference.png')
+    pool.submit(plot_linear, w3=w3, signal=absref, path=s,
+                axlim=limits, eigenenergies=eigenenergies,
+                scale=scale)
+
     s = str(figpath / 'linear-fieldoff.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldoff, path=s,
                 axlim=limits, eigenenergies=eigenenergies,
