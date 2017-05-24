@@ -137,7 +137,14 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
 
     # add eigenstate positions
     if eigenenergies is not None:
-        ax.vlines(eigenenergies, -1, 1, linewidth=2, alpha=0.7)
+        ax.vlines(eigenenergies['without dephasing'],
+                  -1, 1,
+                  linewidth=2,
+                  alpha=0.7, linestyle='--')
+        ax.vlines(eigenenergies['with dephasing'],
+                  -1, 1,
+                  linewidth=2,
+                  alpha=0.7)
 
     ax.relim()
     ax.autoscale_view()
@@ -269,7 +276,9 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     abs = StarkData(*dask.compute(rdataon, rdataoff))
     w3 = np.array(absfile['w3'])
 
-    eigenenergies = fixed_energies2/1e3
+    eigenenergies = {'with dephasing': fixed_energies2/1e3,
+                     'without dephasing': fixed_energies/1e3}
+
     s = str(figpath / 'linear-reference.png')
     pool.submit(plot_linear, w3=w3, signal=absref, path=s,
                 axlim=limits, eigenenergies=eigenenergies,
