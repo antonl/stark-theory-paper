@@ -11,6 +11,7 @@ THREADS=cfg['threads']
 
 SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
 MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
+PLOTSCRIPT_PATH=str(pathlib.Path('scripts/make-plots.py').absolute())
 
 rule make_spectral_densities:
     input:
@@ -80,3 +81,24 @@ rule run_linear_sim:
     shell:
         "cd {wildcards.simdir}; "
         "python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml template-cfg-linear.yaml; "
+
+rule plot_sim_results:
+    input:
+        "{simdir}/absorption.h5",
+        "{simdir}/pump-probe.h5"
+    output:
+        expand("{{simdir}}/figures/{name}",
+            name=['eigen-energies.info',
+                  '2d-reference.png',
+                  '2d-fieldon.png',
+                  '2d-fieldoff.png',
+                  '2d-stark.png',
+                  'linear-fieldoff.png',
+                  'linear-fieldon.png',
+                  'linear-stark.png',
+                  'linear-projections.png',
+                  'linear-stark-projections.png'])
+    threads: 6
+    shell:
+        "cd {wildcards.simdir}; "
+        "python {PLOTSCRIPT_PATH} . -c {threads} --limits 14.25 15.25 --fudge-factor 6.6; "

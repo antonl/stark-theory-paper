@@ -46,28 +46,28 @@ params.update({
 def normalize(data):
     return data / np.abs(data).max()
 
-def plot_evecs(energies, evecs2, which, path, axlim=None):
+def plot_evecs(energies, evecs2, which, path, axlim=(None, None)):
     pts_used = energies.shape[0]
     nvecs = energies.shape[1]
     fig = figure()
     ax = fig.add_subplot(111, polar=True)
     cyc = cycler(color=['b', 'r', 'g'])
 
+    energies2 = energies/1e3
     #for which in range(nvecs):
     for i,prop in zip(range(nvecs), cyc):
         ax.scatter(3*np.pi/2*evecs2[:pts_used//2, i, which],
-               energies[:pts_used//2, which], alpha=0.8, **prop)
-    if axlim is None:
-        ax.set_rlim(14200, 15100)
-    else:
-        ax.set_rlim(*axlim)
+               energies2[:pts_used//2, which], alpha=0.8, **prop)
+
+    ax.set_rlim(*axlim)
 
     ax.set_theta_offset(-np.pi/4)
     ax.set_rlabel_position(np.degrees(3*np.pi/2))
     ax.set_xticklabels(['{:3.0f}%'.format(x) for x in np.linspace(0, 100, 7)] + [''])
     fig.savefig(path, bbox_inches='tight')
 
-def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None, axlim=None):
+def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
+        axlim=(None,None)):
     signal2 = -1*signal.copy()
 
     # plot in 1000 of wn
@@ -79,7 +79,8 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None, axlim=None):
 
     if scale is None: # calculate scale, return it in meta
         scale = np.max(np.abs(signal2))
-        signal2 /= scale
+
+    signal2 /= scale
 
     # fiddle parameters to make the plots look good
     linthresh = 0.01
@@ -102,26 +103,19 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None, axlim=None):
     cb = fig.colorbar(qset, ax=ax, ticks=loc, format=fmt)
     cb.add_lines(c)
 
-    if axlim:
-        ypts = xpts = np.array(sorted(axlim))/1e3
-        print('Using limits ', xpts, ypts)
-        ax.set_xlim(xpts)
-        ax.set_ylim(ypts)
-    else:
-        ypts = xpts = sorted([np.min(w3), np.max(w3)])
-        ax.set_xlim(xpts)
-        ax.set_ylim(ypts)
+    ax.set_xlim(*axlim)
+    ax.set_ylim(*axlim)
 
     #ax.grid(True)
-    ax.add_artist(Line2D(xpts, ypts, linewidth=2, color='k', alpha=0.5,
-                              transform=ax.transData))
+    ax.add_artist(Line2D((0, 1), (0, 1), linewidth=2, color='k', alpha=0.5,
+                              transform=ax.transAxes))
 
-    mainpath = Path(path)
+    ax.relim()
+    ax.autoscale_view()
+    fig.savefig(str(path))
 
-    fig.savefig(str(mainpath))
-
-def plot_linear(w3, signal, path=None, scale=None, axlim=None, ax=None,
-                eigenstates=None):
+def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
+                eigenenergies=None):
 
     w3 = w3.copy()/1e3
     signal2 = signal.copy()
@@ -134,29 +128,29 @@ def plot_linear(w3, signal, path=None, scale=None, axlim=None, ax=None,
 
     if scale is None: # calculate scale, return it in meta
         scale = np.max(np.abs(signal2))
+
     # scale signal to the passed scale
     signal2 /= scale
 
-    if axlim is None:
-        axlim = 15200, 16200
-
-    ax.plot(w3, signal, linewidth=2)
+    ax.plot(w3, signal2, linewidth=2)
     ax.set_xlim(*axlim)
 
     # add eigenstate positions
-    if eigenstates:
-        ax.vlines(eigenstates, -1, 1, linewidth=2, alpha=0.7)
+    if eigenenergies is not None:
+        ax.vlines(eigenenergies, -1, 1, linewidth=2, alpha=0.7)
 
-    s = str(path)
-    fig.savefig(s)
+    ax.relim()
+    ax.autoscale_view()
+    fig.savefig(str(path))
     return ax, scale
 
 @click.command()
 @click.argument('path', type=click.Path(file_okay=False, exists=True))
-@click.option('--limits', default=(None, None), type=(float, float))
+@click.option('--limits', default=(None,None), type=(float, float))
 @click.option('-c','--ncores', default=6)
 @click.option('--fudge-factor', default=0.)
-def make_figures(path, limits, ncores, fudge_factor):
+@click.option('--scale', default=-1)
+def make_figures(path, limits, ncores, fudge_factor, scale):
     # look for pump-probe data file
     path = Path(path)
     pool = ProcessPoolExecutor(max_workers=ncores)
@@ -168,6 +162,9 @@ def make_figures(path, limits, ncores, fudge_factor):
     except FileNotFoundError as e:
         print('Datafiles not found in dir {!s}'.format(path))
         return
+
+    if scale < 0:
+        scale = None
 
     # load ref
     ddref = np.array(ddfile['reference']).imag
@@ -232,24 +229,31 @@ def make_figures(path, limits, ncores, fudge_factor):
 
     # make diagnostic plots to make sure rotational averaging matches analytic
     s = str(figpath / '2d-reference.png')
-    pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits)
+    pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits,
+            scale=scale)
+    #plot_2d(w1=w1, w3=w3, signal=ddref, path=s, axlim=limits)
 
     #s = str(figpath / '2d-reference-old.png')
     #pool.submit(plot_result, w1=w1, w3=w3, signal=ddref, path=s,
     #            show=False)
 
     s = str(figpath / '2d-fieldon.png')
-    pool.submit(plot_2d, w1=w1, w3=w3, signal=dd.fieldon, path=s, axlim=limits)
+    pool.submit(plot_2d, w1=w1, w3=w3, signal=dd.fieldon, path=s, axlim=limits,
+            scale=scale)
 
     s = str(figpath / '2d-fieldoff.png')
-    pool.submit(plot_2d, w1=w1, w3=w3, signal=dd.fieldoff, path=s, axlim=limits)
+    pool.submit(plot_2d, w1=w1, w3=w3, signal=dd.fieldoff, path=s,
+            axlim=limits,
+            scale=scale)
 
     s = str(figpath / '2d-stark.png')
-    pool.submit(plot_2d, w1=w1, w3=w3, signal=dd.fieldon-dd.fieldoff, path=s, axlim=limits)
+    pool.submit(plot_2d, w1=w1, w3=w3, signal=dd.fieldon-dd.fieldoff, path=s,
+            axlim=limits,
+            scale=scale)
 
     for i in range(nstates):
         s = str(figpath / '2d-evecs{:d}.png'.format(i))
-        pool.submit(plot_evecs, corr_energies, evecs2_trace, i, s)
+        pool.submit(plot_evecs, corr_energies, evecs2_trace, i, s, axlim=limits)
 
     dd_projection = -(ddref).sum(axis=1)
     ddess_projection = -(dd.fieldon - dd.fieldoff).sum(axis=1)
@@ -268,24 +272,30 @@ def make_figures(path, limits, ncores, fudge_factor):
     eigenenergies = fixed_energies2/1e3
     s = str(figpath / 'linear-fieldoff.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldoff, path=s,
-                eigenenergies=eigenenergies)
+                axlim=limits, eigenenergies=eigenenergies,
+                scale=scale)
 
     s = str(figpath / 'linear-fieldon.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldon, path=s,
-                eigenenergies=eigenenergies)
+                axlim=limits, eigenenergies=eigenenergies,
+                scale=scale)
 
     s = str(figpath / 'linear-stark.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldon - abs.fieldoff, path=s,
-                eigenenergies=eigenenergies)
+                axlim=limits, eigenenergies=eigenenergies, scale=scale)
 
     s = str(figpath / 'linear-projections.png')
-    ax, scale = plot_linear(w3=w3, signal=abs.fieldoff, path=s)
-    plot_linear(w3=w3, signal=dd_projection, path=s, ax=ax)
+    ax, scale2 = plot_linear(w3=w3, signal=abs.fieldoff, path=s, axlim=limits)
+    plot_linear(w3=w3, signal=dd_projection, path=s, ax=ax, axlim=limits,
+            eigenenergies=eigenenergies, scale=scale)
 
     s = str(figpath / 'linear-stark-projections.png')
-    ax, scale = plot_linear(w3=w3, signal=abs.fieldon - abs.fieldoff, path=s)
+    ax, scale2 = plot_linear(w3=w3, signal=abs.fieldon - abs.fieldoff, path=s,
+            axlim=limits, scale=scale)
     plot_linear(w3=w3, signal=ddess_projection, path=s, ax=ax,
-                eigenenergies=eigenenergies)
+                axlim=limits, eigenenergies=eigenenergies, scale=scale)
+    print('submitted some figures')
 
+    pool.shutdown(wait=True)
 if __name__ == '__main__':
     make_figures()
