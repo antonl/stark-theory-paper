@@ -133,6 +133,9 @@ lamb_cor = 505.332 # reorganization energy correction
 cfg.system_hamiltonian = (np.array(cfg.system_hamiltonian) - lamb_cor*np.eye(
     cfg.nsites)).tolist()
 
+cfg.include_complex_lifetimes = False
+cfg.speedup_smallness = -1
+
 # ------------------------------------------------------------------------------
 # configure field orientations
 
