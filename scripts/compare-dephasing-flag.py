@@ -17,11 +17,6 @@ from matplotlib.colors import SymLogNorm
 from matplotlib.ticker import SymmetricalLogLocator
 from cycler import cycler
 
-from pyqcfp.delayed import SimulationCheckpoint
-from pyqcfp.runqcfp import QcfpConfig
-
-from pyqcfp.plotting import plot_result, plot_absorption
-
 from .plotutils import *
 
 @click.command()
@@ -37,8 +32,8 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     #rcParams.update(params)
 
     try:
-        ddfile = h5py.File(str(path/'pump-probe-no-dephasing.h5'), 'r')
-        absfile = h5py.File(str(path/'absorption.h5'), 'r')
+        ddfile_real = h5py.File(str(path/'pump-probe-real.h5'), 'r')
+        ddfile_complex = h5py.File(str(path/'absorption-complex.h5'), 'r')
     except FileNotFoundError as e:
         print('Datafiles not found in dir {!s}'.format(path))
         return
@@ -47,21 +42,23 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
         scale = None
 
     # load ref
-    ddref = np.array(ddfile['reference']).imag
-    w3, w1 = np.array(ddfile['w3']), np.array(ddfile['w1'])
+    ddref = np.array(ddfile_real['reference']).imag
+    w3, w1 = np.array(ddfile_real['w3']), np.array(ddfile_real['w1'])
 
     # load evecs
-    energies = np.array(ddfile['meta/one band energies'])
+    energies = np.array(ddfile_real['meta/one band energies'])
     nstates = energies.shape[0]
-    evecs2 = np.array(ddfile['meta/ge eigenvectors'])**2
-    reorgs = np.array(ddfile['meta/reorganization energy matrix'])
-    sbcouplingdiag = np.diag(ddfile['meta/sb coupling diagonal'])
-    sbcouplingoffdiag = np.diag(ddfile['meta/sb coupling off-diagonal'])
-    redfield = np.array(ddfile['meta/redfield relaxation matrix'])
+    evecs2 = np.array(ddfile_real['meta/ge eigenvectors'])**2
+    reorgs = np.array(ddfile_real['meta/reorganization energy matrix'])
+    sbcouplingdiag = np.diag(ddfile_real['meta/sb coupling diagonal'])
+    sbcouplingoffdiag = np.diag(ddfile_real['meta/sb coupling off-diagonal'])
+    redfield = np.array(ddfile_real['meta/redfield relaxation matrix'])
     reorgs = np.diag(reorgs)[1:nstates+1]
     redfield = np.diag(redfield)[1:nstates+1]
-    dephasingmat = np.array(ddfile['meta/lifetime dephasing matrix'])[:, ::2] + \
-                   1j*np.array(ddfile['meta/lifetime dephasing matrix'])[:, 1::2]
+    dephasingmat = np.array(ddfile_real['meta/lifetime dephasing matrix'])[:,
+                   ::2] + \
+                   1j*np.array(ddfile_real['meta/lifetime dephasing '
+                                           'matrix'])[:, 1::2]
     imagdeph = dephasingmat[1:nstates+1,0].imag
 
     fixed_energies = energies - reorgs
@@ -72,6 +69,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     figpath.mkdir(exist_ok=True)
 
     with (figpath / 'eigen-energies.info').open('w') as f:
+        print('Without complex lifetimes: ', file=f)
         print('Eigen-energies:', energies, file=f)
         print('GE reorganization energies:', reorgs, file=f)
         print('Reorg\'ed energies:', fixed_energies, file=f)
@@ -83,13 +81,57 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
             print(file=f)
         print('S-B diagonal couplings:', sbcouplingdiag, file=f)
         print('S-B off-diagonal couplings:', sbcouplingoffdiag, file=f)
+
         print(file=f)
 
     # make diagnostic plots to make sure rotational averaging matches analytic
-    s = str(figpath / '2d-reference.png')
+    s = str(figpath / '2d-real.png')
     pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits,
                 scale=scale)
 
+    # load ref
+    ddref = np.array(ddfile_complex['reference']).imag
+    w3, w1 = np.array(ddfile_complex['w3']), np.array(ddfile_complex['w1'])
+
+    # load evecs
+    energies = np.array(ddfile_complex['meta/one band energies'])
+    nstates = energies.shape[0]
+    evecs2 = np.array(ddfile_complex['meta/ge eigenvectors'])**2
+    reorgs = np.array(ddfile_complex['meta/reorganization energy matrix'])
+    sbcouplingdiag = np.diag(ddfile_complex['meta/sb coupling diagonal'])
+    sbcouplingoffdiag = np.diag(ddfile_complex['meta/sb coupling off-diagonal'])
+    redfield = np.array(ddfile_complex['meta/redfield relaxation matrix'])
+    reorgs = np.diag(reorgs)[1:nstates+1]
+    redfield = np.diag(redfield)[1:nstates+1]
+    dephasingmat = np.array(ddfile_complex['meta/lifetime dephasing matrix'])[:,
+                   ::2] + \
+                   1j*np.array(ddfile_complex['meta/lifetime dephasing '
+                                           'matrix'])[:, 1::2]
+    imagdeph = dephasingmat[1:nstates+1,0].imag
+
+    fixed_energies = energies - reorgs
+    fixed_energies2 = energies - reorgs + imagdeph + fudge_factor
+
+    with (figpath / 'eigen-energies.info').open('w+') as f:
+        print('With complex lifetimes: ', file=f)
+        print('Eigen-energies:', energies, file=f)
+        print('GE reorganization energies:', reorgs, file=f)
+        print('Reorg\'ed energies:', fixed_energies, file=f)
+        print('Reorg\'ed energies + deph + fudge:', fixed_energies2, file=f)
+        print(file=f)
+        for i in range(evecs2.shape[0]):
+            print('Localization of eigenstate {:d}:'.format(i), file=f)
+            print(evecs2[i, :], file=f)
+            print(file=f)
+        print('S-B diagonal couplings:', sbcouplingdiag, file=f)
+        print('S-B off-diagonal couplings:', sbcouplingoffdiag, file=f)
+
+        print(file=f)
+
+    # make diagnostic plots to make sure rotational averaging matches analytic
+    s = str(figpath / '2d-complex.png')
+    pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits,
+                scale=scale)
 
 if __name__ == '__main__':
     make_figures()
