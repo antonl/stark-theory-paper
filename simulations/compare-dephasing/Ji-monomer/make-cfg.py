@@ -22,9 +22,7 @@ if any([TMPDIR is None, SCRATCHDIR is None, OUTPUTDIR is None]):
     sys.exit(-1)
 
 # setup checkpoint
-TMPDIR = Path(TMPDIR).absolute()
-SCRATCHDIR = Path(SCRATCHDIR).absolute()
-OUTPUTDIR = Path(OUTPUTDIR).absolute()
+TMPDIR = SCRATCHDIR = OUTPUTDIR = Path(OUTPUTDIR).absolute()
 #TMPDIR = PurePosixPath('/dev/shm/simulations/17-03-28/')
 #TMPDIR = PurePosixPath('C:/aloukian-project/17-03-22')
 #SCRATCHDIR = PurePosixPath('/home/aloukian/simulations/17-03-28/')
@@ -45,7 +43,7 @@ cfg.simulation_type = 'pump-probe'
 cfg.simulation_code = 'excitons-2d'
 #cfg.simulation_type = 'absorption'
 #cfg.simulation_code = 'excitons-abs'
-cfg.full_output = False
+cfg.full_output = True
 cfg.analytic_orientational_averaging = True
 cfg.return_axes = False
 
