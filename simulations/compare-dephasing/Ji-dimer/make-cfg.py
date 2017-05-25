@@ -40,7 +40,7 @@ cfg = QcfpConfig()
 
 # meta info
 cfg.simulation_id = 0
-cfg.simulation_group = 'Ji-monomer-mu'
+cfg.simulation_group = 'Ji-dimer'
 cfg.simulation_type = 'pump-probe'
 cfg.simulation_code = 'excitons-2d'
 #cfg.simulation_type = 'absorption'
@@ -69,33 +69,33 @@ cfg.output_directory = '.'
 # energies are in cm^{-1}
 
 # sites and couplings
-cfg.nsites = 1
+cfg.nsites = 2
 
 #cfg.system_hamiltonian = [[15260., 150., 45.], # Pd1
 #                          [150., 15190., 45.], # Pd2
 #                          [45., 45., 15182.], # CT state
 #                          ]
-cfg.system_hamiltonian = [[15260.], # Pd1
-                          #[150., 15190.], # Pd2
+cfg.system_hamiltonian = [[15260., 150.], # Pd1
+                          [150., 15190.], # Pd2
                           #[45., 45., 15182.], # CT state
                           ]
 
-#cfg.spectral_density_couplings = [[1., 1.]]
-cfg.spectral_density_couplings = [[1.]]
+cfg.spectral_density_couplings = [[1., 1.]]
+#cfg.spectral_density_couplings = [[1.]]
 
 #cfg.k_couplings = [[0., 0., 0.],
 #                   [0., 0., 0.],
 #                   [0., 0., 0.]]
-#cfg.k_couplings = [[0., 0.],
-#                   [0., 0.]]
-cfg.k_couplings = [[0.]]
+cfg.k_couplings = [[0., 0.],
+                   [0., 0.]]
+#cfg.k_couplings = [[0.]]
 
 cfg.system_type = 'paulionic' # two-level systems
 
 # directions of dipoles
 cfg.system_dipoles = [
     [-0.7513666, 0.36257354, 0.55135167], # Pd1
-    #[0.95124446, 0.0857395,  0.29628147], # Pd2
+    [0.95124446, 0.0857395,  0.29628147], # Pd2
     #[-0.78834349, -0.28475419, 0.54537106], # CT state direction
 ]
 
@@ -106,7 +106,7 @@ cfg.delta_mu = cfg.system_dipoles
 fwhm_factor = 2*np.sqrt(2*np.log(2))
 metacfg.static_disorder_musigma = [
     [0, float(95./fwhm_factor)],
-    #[0, float(95./fwhm_factor)],
+    [0, float(95./fwhm_factor)],
     #[0, float(190./fwhm_factor)],
 ]
 
@@ -169,7 +169,7 @@ ct_alpha = (tr_alpha_ct*np.eye(3)/3).tolist()
 
 cfg.delta_alpha = [
     monomer_alpha,
-    #monomer_alpha,
+    monomer_alpha,
     #ct_alpha
 ]
 
@@ -177,8 +177,8 @@ cfg.delta_alpha = [
 d_st = to_wn(d_st*D*q('MV/cm')).magnitude
 d_st_ct = to_wn(d_st_ct*D*q('MV/cm')).magnitude
 #scale_static_dipoles = np.diag([d_st, d_st, d_st_ct])
-#scale_static_dipoles = np.diag([d_st, d_st])
-scale_static_dipoles = np.diag([d_st])
+scale_static_dipoles = np.diag([d_st, d_st])
+#scale_static_dipoles = np.diag([d_st])
 cfg.delta_mu = (np.dot(scale_static_dipoles, np.array(cfg.delta_mu))).tolist()
 
 # scale transition dipoles
@@ -186,8 +186,8 @@ d_tr = to_wn(d_tr*D*q('MV/cm')).magnitude
 d_tr_ct = to_wn(d_tr_ct*D*q('MV/cm')).magnitude
 
 #scale_tr_dipoles = np.diag([d_tr, d_tr, d_tr_ct]).tolist()
-#scale_tr_dipoles = np.diag([d_tr, d_tr]).tolist()
-scale_tr_dipoles = np.diag([d_tr]).tolist()
+scale_tr_dipoles = np.diag([d_tr, d_tr]).tolist()
+#scale_tr_dipoles = np.diag([d_tr]).tolist()
 cfg.system_dipoles = (np.dot(scale_tr_dipoles, np.array(
     cfg.system_dipoles))).tolist()
 
