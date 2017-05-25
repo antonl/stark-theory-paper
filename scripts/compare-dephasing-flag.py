@@ -34,6 +34,9 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     try:
         ddfile_real = h5py.File(str(path/'pump-probe-real.h5'), 'r')
         ddfile_complex = h5py.File(str(path/'pump-probe-complex.h5'), 'r')
+        absfile_real = h5py.File(str(path/'absorption-real.h5'), 'r')
+        absfile_complex = h5py.File(str(path/'absorption-complex.h5'), 'r')
+
     except FileNotFoundError as e:
         print('Datafiles not found in dir {!s}'.format(path))
         return
@@ -134,6 +137,26 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     s = str(figpath / '2d-complex.png')
     pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits,
                 scale=scale)
+
+
+    # do the same for absorption
+    absref = np.array(absfile_real['reference'])
+    w3 = np.array(absfile_real['w3'])
+
+    eigenenergies = {'with dephasing': fixed_energies2/1e3,
+                     'without dephasing': fixed_energies/1e3}
+
+    s = str(figpath / 'linear-real.png')
+    ax, scale2 = plot_linear(w3=w3, signal=absref, path=s,
+                        axlim=limits, eigenenergies=eigenenergies,
+                        scale=scale)
+
+    absref = np.array(absfile_complex['reference'])
+    w3 = np.array(absfile_complex['w3'])
+
+    s = str(figpath / 'linear-complex.png')
+    plot_linear(w3=w3, signal=absref, path=s,
+                axlim=limits, scale=scale, ax=ax)
 
 if __name__ == '__main__':
     make_figures()
