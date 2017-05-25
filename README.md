@@ -8,7 +8,7 @@ it should be straight-forward to reproduce the results in the future.
 
 The simulation code assumes that everything is being run on a Linux machine.
 Although it is possible to run these simulations on Windows, it is more
-challenging to setup and may require additional tweaking. 
+challenging to setup and may require additional tweaking.
 
 - Linux machine with gcc compiler
 - git
@@ -43,3 +43,9 @@ snakemake -n
 ## Running the simulations
 
 To be written
+
+## Description of Simulations
+
+- quick: these are "quick" simulations on a small mesh for testing
+- compare-dephasing: some simple simulations using analytic rotational
+  averaging for which the imaginary part of the lifetime dephasings is discarded

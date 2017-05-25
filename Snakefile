@@ -71,6 +71,40 @@ rule prep_linear_sim:
         "cd {wildcards.simdir}; "
         "python {MKLIN_PATH}; "
 
+rule prepare_complex_dephasing:
+    input:
+        "simulation/compare-dephasing/{simdir}/Ji-spd.txt",
+        "simulation/compare-dephasing/{simdir}/Jii-spd.txt",
+        "simulation/compare-dephasing/{simdir}/Jlowfreq-spd.txt",
+        "simulation/compare-dephasing/{simdir}/Jnjp-spd.txt",
+    output:
+        "simulation/compare-dephasing/{simdir}/template-cfg-complex.yaml",
+        "simulation/compare-dephasing/{simdir}/template-cfg-real.yaml"
+        "simulation/compare-dephasing/{simdir}/metacfg.yaml",
+    run:
+        path = "simulation/compare-dephasing/{simdir}"
+        shell("cd {path}", path=wildcards.path)
+        shell("python make-cfg.py")
+
+rule run_compare_complex_dephasing:
+    input:
+        "simulation/compare-dephasing/{simdir}/template-cfg-complex.yaml",
+        "simulation/compare-dephasing/{simdir}/template-cfg-real.yaml"
+        "simulation/compare-dephasing/{simdir}/metacfg.yaml",
+    output:
+        "simulation/compare-dephasing/{simdir}/pump-probe-complex.h5"
+        "simulation/compare-dephasing/{simdir}/pump-probe-real.h5"
+    threads: 2
+    run:
+        path = "simulation/compare-dephasing/{simdir}"
+        shell("cd {path}", path=wildcards.path)
+        shell("python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml "
+              "template-cfg-complex.yaml;"
+              "mv pump-probe.h5 pump-probe-complex.h5;")
+        shell("python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml "
+              "template-cfg-real.yaml;"
+              "mv pump-probe.h5 pump-probe-real.h5;")
+
 rule run_linear_sim:
     input:
         "{simdir}/template-cfg-linear.yaml",

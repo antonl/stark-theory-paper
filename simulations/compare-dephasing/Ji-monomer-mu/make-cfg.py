@@ -40,13 +40,13 @@ cfg = QcfpConfig()
 
 # meta info
 cfg.simulation_id = 0
-cfg.simulation_group = 'Ji-dimer-mu'
+cfg.simulation_group = 'Ji-monomer-mu'
 cfg.simulation_type = 'pump-probe'
 cfg.simulation_code = 'excitons-2d'
 #cfg.simulation_type = 'absorption'
 #cfg.simulation_code = 'excitons-abs'
 cfg.full_output = False
-cfg.analytic_orientational_averaging = False
+cfg.analytic_orientational_averaging = True
 cfg.return_axes = False
 
 metacfg.tmpdir = str(TMPDIR)
@@ -57,8 +57,8 @@ metacfg.randstate = [0,[0,],0]
 metacfg.chunksize = 1
 metacfg.mesh_size = 5,5
 metacfg.save_plots = True
-metacfg.use_rotations = True
-metacfg.use_stark = True
+metacfg.use_rotations = False
+metacfg.use_stark = False
 metacfg.use_staticdisorder = False
 cfg.stark_perturbation = metacfg.use_stark
 
@@ -69,31 +69,33 @@ cfg.output_directory = '.'
 # energies are in cm^{-1}
 
 # sites and couplings
-cfg.nsites = 2
+cfg.nsites = 1
 
 #cfg.system_hamiltonian = [[15260., 150., 45.], # Pd1
 #                          [150., 15190., 45.], # Pd2
 #                          [45., 45., 15182.], # CT state
 #                          ]
-cfg.system_hamiltonian = [[15260., 150.], # Pd1
-                          [150., 15190.], # Pd2
+cfg.system_hamiltonian = [[15260.], # Pd1
+                          #[150., 15190.], # Pd2
                           #[45., 45., 15182.], # CT state
                           ]
 
-cfg.spectral_density_couplings = [[1., 1.]]
+#cfg.spectral_density_couplings = [[1., 1.]]
+cfg.spectral_density_couplings = [[1.]]
 
 #cfg.k_couplings = [[0., 0., 0.],
 #                   [0., 0., 0.],
 #                   [0., 0., 0.]]
-cfg.k_couplings = [[0., 0.],
-                   [0., 0.]]
+#cfg.k_couplings = [[0., 0.],
+#                   [0., 0.]]
+cfg.k_couplings = [[0.]]
 
 cfg.system_type = 'paulionic' # two-level systems
 
 # directions of dipoles
 cfg.system_dipoles = [
     [-0.7513666, 0.36257354, 0.55135167], # Pd1
-    [0.95124446, 0.0857395,  0.29628147], # Pd2
+    #[0.95124446, 0.0857395,  0.29628147], # Pd2
     #[-0.78834349, -0.28475419, 0.54537106], # CT state direction
 ]
 
@@ -104,7 +106,7 @@ cfg.delta_mu = cfg.system_dipoles
 fwhm_factor = 2*np.sqrt(2*np.log(2))
 metacfg.static_disorder_musigma = [
     [0, float(95./fwhm_factor)],
-    [0, float(95./fwhm_factor)],
+    #[0, float(95./fwhm_factor)],
     #[0, float(190./fwhm_factor)],
 ]
 
@@ -113,7 +115,7 @@ d_tr = 4. # Debye
 d_tr_ct = 0.0 # Debye
 
 # Static dipole magnitude in Debye
-d_st = 1.41 # Debye
+d_st = 0. # Debye
 d_st_ct = 0. # Debye
 
 # Trace of polarizability
@@ -133,7 +135,6 @@ lamb_cor = 505.332 # reorganization energy correction
 cfg.system_hamiltonian = (np.array(cfg.system_hamiltonian) - lamb_cor*np.eye(
     cfg.nsites)).tolist()
 
-cfg.include_complex_lifetimes = True
 cfg.speedup_smallness = -1
 
 # ------------------------------------------------------------------------------
@@ -168,15 +169,16 @@ ct_alpha = (tr_alpha_ct*np.eye(3)/3).tolist()
 
 cfg.delta_alpha = [
     monomer_alpha,
-    monomer_alpha,
-#    ct_alpha
+    #monomer_alpha,
+    #ct_alpha
 ]
 
 # scale static dipoles
 d_st = to_wn(d_st*D*q('MV/cm')).magnitude
 d_st_ct = to_wn(d_st_ct*D*q('MV/cm')).magnitude
 #scale_static_dipoles = np.diag([d_st, d_st, d_st_ct])
-scale_static_dipoles = np.diag([d_st, d_st])
+#scale_static_dipoles = np.diag([d_st, d_st])
+scale_static_dipoles = np.diag([d_st])
 cfg.delta_mu = (np.dot(scale_static_dipoles, np.array(cfg.delta_mu))).tolist()
 
 # scale transition dipoles
@@ -184,7 +186,8 @@ d_tr = to_wn(d_tr*D*q('MV/cm')).magnitude
 d_tr_ct = to_wn(d_tr_ct*D*q('MV/cm')).magnitude
 
 #scale_tr_dipoles = np.diag([d_tr, d_tr, d_tr_ct]).tolist()
-scale_tr_dipoles = np.diag([d_tr, d_tr]).tolist()
+#scale_tr_dipoles = np.diag([d_tr, d_tr]).tolist()
+scale_tr_dipoles = np.diag([d_tr]).tolist()
 cfg.system_dipoles = (np.dot(scale_tr_dipoles, np.array(
     cfg.system_dipoles))).tolist()
 
@@ -193,8 +196,15 @@ print(np.linalg.norm(np.array(cfg.system_dipoles), axis=1, ord=2))
 print(np.linalg.norm(cfg.delta_mu, axis=1, ord=2))
 print([np.trace(x) for x in cfg.delta_alpha])
 
-with open('template-cfg.yaml', 'w') as f:
-    cfg.to_yaml(stream=f)
-
 with open('metacfg.yaml', 'w') as f:
     metacfg.to_yaml(stream=f)
+
+cfg.include_complex_lifetimes = False
+
+with open('template-cfg-real.yaml', 'w') as f:
+    cfg.to_yaml(stream=f)
+
+cfg.include_complex_lifetimes = True
+
+with open('template-cfg-complex.yaml', 'w') as f:
+    cfg.to_yaml(stream=f)
