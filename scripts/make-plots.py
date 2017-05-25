@@ -17,7 +17,7 @@ from matplotlib.colors import SymLogNorm
 from matplotlib.ticker import SymmetricalLogLocator
 from cycler import cycler
 
-from .plotutils import *
+from plotutils import *
 
 params = {
     'savefig.dpi': 300,
@@ -113,6 +113,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
         print('Eigen-energies:', energies, file=f)
         print('GE reorganization energies:', reorgs, file=f)
         print('Reorg\'ed energies:', fixed_energies, file=f)
+        print('Dephasing: ', imagdeph, file=f)
         print('Reorg\'ed energies + deph + fudge:', fixed_energies2, file=f)
         print(file=f)
         for i in range(evecs2.shape[0]):

@@ -17,7 +17,7 @@ from matplotlib.colors import SymLogNorm
 from matplotlib.ticker import SymmetricalLogLocator
 from cycler import cycler
 
-from .plotutils import *
+from plotutils import *
 
 @click.command()
 @click.argument('path', type=click.Path(file_okay=False, exists=True))
@@ -33,7 +33,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
 
     try:
         ddfile_real = h5py.File(str(path/'pump-probe-real.h5'), 'r')
-        ddfile_complex = h5py.File(str(path/'absorption-complex.h5'), 'r')
+        ddfile_complex = h5py.File(str(path/'pump-probe-complex.h5'), 'r')
     except FileNotFoundError as e:
         print('Datafiles not found in dir {!s}'.format(path))
         return
@@ -73,6 +73,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
         print('Eigen-energies:', energies, file=f)
         print('GE reorganization energies:', reorgs, file=f)
         print('Reorg\'ed energies:', fixed_energies, file=f)
+        print('Dephasing: ', imagdeph, file=f)
         print('Reorg\'ed energies + deph + fudge:', fixed_energies2, file=f)
         print(file=f)
         for i in range(evecs2.shape[0]):
@@ -112,11 +113,12 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     fixed_energies = energies - reorgs
     fixed_energies2 = energies - reorgs + imagdeph + fudge_factor
 
-    with (figpath / 'eigen-energies.info').open('w+') as f:
+    with (figpath / 'eigen-energies.info').open('a+') as f:
         print('With complex lifetimes: ', file=f)
         print('Eigen-energies:', energies, file=f)
         print('GE reorganization energies:', reorgs, file=f)
         print('Reorg\'ed energies:', fixed_energies, file=f)
+        print('Dephasing: ', imagdeph, file=f)
         print('Reorg\'ed energies + deph + fudge:', fixed_energies2, file=f)
         print(file=f)
         for i in range(evecs2.shape[0]):
