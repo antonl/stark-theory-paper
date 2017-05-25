@@ -73,37 +73,43 @@ rule prep_linear_sim:
 
 rule prepare_complex_dephasing:
     input:
-        "simulation/compare-dephasing/{simdir}/Ji-spd.txt",
-        "simulation/compare-dephasing/{simdir}/Jii-spd.txt",
-        "simulation/compare-dephasing/{simdir}/Jlowfreq-spd.txt",
-        "simulation/compare-dephasing/{simdir}/Jnjp-spd.txt",
+        "simulations/compare-dephasing/{simdir}/Ji-spd.txt",
+        "simulations/compare-dephasing/{simdir}/Jii-spd.txt",
+        "simulations/compare-dephasing/{simdir}/Jlowfreq-spd.txt",
+        "simulations/compare-dephasing/{simdir}/Jnjp-spd.txt",
+    wildcard_constraints:
+        simdir="[\d\w\-+]+"
     output:
-        "simulation/compare-dephasing/{simdir}/template-cfg-complex.yaml",
-        "simulation/compare-dephasing/{simdir}/template-cfg-real.yaml"
-        "simulation/compare-dephasing/{simdir}/metacfg.yaml",
-    run:
-        path = "simulation/compare-dephasing/{simdir}"
-        shell("cd {path}", path=wildcards.path)
-        shell("python make-cfg.py")
+        "simulations/compare-dephasing/{simdir}/template-cfg-complex.yaml",
+        "simulations/compare-dephasing/{simdir}/template-cfg-real.yaml",
+        "simulations/compare-dephasing/{simdir}/metacfg.yaml",
+    shell:
+        "cd simulations/compare-dephasing/{wildcards.simdir};"
+        "PYQCFP_TMPDIR={TMPDIR}/simulations/compare-dephasing/{wildcards.simdir} "
+        "PYQCFP_SCRATCHDIR={SCRATCHDIR}/simulations/compare-dephasing/{wildcards.simdir} "
+        "PYQCFP_OUTPUTDIR={OUTPUTDIR}/simulations/compare-dephasing/{wildcards.simdir} "
+        "python make-cfg.py"
 
 rule run_compare_complex_dephasing:
     input:
-        "simulation/compare-dephasing/{simdir}/template-cfg-complex.yaml",
-        "simulation/compare-dephasing/{simdir}/template-cfg-real.yaml"
-        "simulation/compare-dephasing/{simdir}/metacfg.yaml",
+        "simulations/compare-dephasing/{simdir}/template-cfg-complex.yaml",
+        "simulations/compare-dephasing/{simdir}/template-cfg-real.yaml",
+        "simulations/compare-dephasing/{simdir}/metacfg.yaml",
+    wildcard_constraints:
+        simdir="[\d\w\-+]+"
     output:
-        "simulation/compare-dephasing/{simdir}/pump-probe-complex.h5"
-        "simulation/compare-dephasing/{simdir}/pump-probe-real.h5"
+        "simulations/compare-dephasing/{simdir}/pump-probe-complex.h5",
+        "simulations/compare-dephasing/{simdir}/pump-probe-real.h5"
     threads: 2
-    run:
-        path = "simulation/compare-dephasing/{simdir}"
-        shell("cd {path}", path=wildcards.path)
-        shell("python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml "
-              "template-cfg-complex.yaml;"
-              "mv pump-probe.h5 pump-probe-complex.h5;")
-        shell("python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml "
-              "template-cfg-real.yaml;"
-              "mv pump-probe.h5 pump-probe-real.h5;")
+    shell:
+        "cd simulations/compare-dephasing/{wildcards.simdir};"
+        "python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml template-cfg-complex.yaml;"
+        "mv pump-probe.h5 pump-probe-complex.h5;"
+        "python {SIMSCRIPT_PATH} -c {threads} metacfg.yaml template-cfg-real.yaml;"
+        "mv pump-probe.h5 pump-probe-real.h5;"
+
+ruleorder: 
+    prepare_complex_dephasing > prep_ddess_sim
 
 rule run_linear_sim:
     input:

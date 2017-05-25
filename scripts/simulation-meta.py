@@ -159,14 +159,14 @@ def simulate(metacfg_path, templatecfg_path, ncores):
 
         # setup dataset to write chunks to
         shape = (pts_to_use,) + dsetshape
-        chunks = (100,) + dsetshape
+        chunks = (min([pts_for_loop, 100]),) + dsetshape
         dset = grp.create_dataset('data', shape, dtype=dsetdtype, chunks=chunks)
 
         # setup metadata folder
         meta = grp.create_group('meta')
         for k,(s, dtype) in metadsets.items():
             shape = (pts_to_use,) + s
-            chunks = (100,) + s
+            chunks = (min([pts_for_loop, 100]),) + s 
             meta.create_dataset(k, shape=shape, dtype=dtype, chunks=chunks,
                     compression='gzip', compression_opts=4, shuffle=True)
 
