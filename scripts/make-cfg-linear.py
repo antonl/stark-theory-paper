@@ -1,8 +1,14 @@
 from pyqcfp.runqcfp import QcfpConfig
+import pathlib
+import sys
 
-cfg = QcfpConfig.from_yaml_file('template-cfg.yaml')
+path = pathlib.Path(sys.argv[1])
+
+cfg = QcfpConfig.from_yaml_file(str(path))
 cfg.simulation_type = 'absorption'
 cfg.simulation_code = 'excitons-abs'
 
-with open('template-cfg-linear.yaml', 'w') as f:
+linearpath = str(path.with_suffix('').name + '-linear.yaml')
+
+with open(linearpath, 'w') as f:
     cfg.to_yaml(stream=f)
