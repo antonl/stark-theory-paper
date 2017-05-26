@@ -183,6 +183,16 @@ rule plot_all_quick:
         "simulations/quick/Ji-dimer-ct-mu/figures/2d-reference.png",
         "simulations/quick/Ji-dimer-ct-alpha/figures/2d-reference.png",
 
+rule plot_all_large_mesh:
+    input:
+        "simulations/large-mesh/Ji-monomer-mu/figures/2d-reference.png",
+        "simulations/large-mesh/Ji-monomer-alpha/figures/2d-reference.png",
+        "simulations/large-mesh/Ji-dimer-mu/figures/2d-reference.png",
+        "simulations/large-mesh/Ji-dimer-alpha/figures/2d-reference.png",
+        "simulations/large-mesh/Ji-dimer-mu-uncoupled/figures/2d-reference.png",
+        "simulations/large-mesh/Ji-dimer-ct-mu/figures/2d-reference.png",
+        "simulations/large-mesh/Ji-dimer-ct-alpha/figures/2d-reference.png",
+
 rule clean_sim:
     input:
         "{simdir}/Ji-spd.txt"
