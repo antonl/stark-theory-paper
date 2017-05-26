@@ -92,8 +92,9 @@ def simulate(metacfg_path, templatecfg_path, ncores):
                     self._pts_seen = 0
 
                 def __call__(self, cfg):
-                    if self._pts_seen == self.npts:
-                        cfg.analytic_rotational_averaging = True
+                    self._pts_seen += 1
+                    if self._pts_seen == (self.npts + 1):
+                        cfg.analytic_orientational_averaging = True
                         self._pts_seen = 0
 
                     return cfg
