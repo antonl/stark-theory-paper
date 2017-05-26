@@ -94,7 +94,7 @@ def simulate(metacfg_path, templatecfg_path, ncores):
         if chkpt.use_stark:
             # with stark, we get one mesh for field on and one for field off,
             # take them both
-            pts_to_use = 2*mesh_gen.npts
+            pts_to_use = mesh_gen.npts + 1
         else:
             pts_to_use = mesh_gen.npts
 
@@ -166,7 +166,7 @@ def simulate(metacfg_path, templatecfg_path, ncores):
         meta = grp.create_group('meta')
         for k,(s, dtype) in metadsets.items():
             shape = (pts_to_use,) + s
-            chunks = (min([pts_for_loop, 100]),) + s 
+            chunks = (min([pts_for_loop, 100]),) + s
             meta.create_dataset(k, shape=shape, dtype=dtype, chunks=chunks,
                     compression='gzip', compression_opts=4, shuffle=True)
 
