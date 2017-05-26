@@ -64,6 +64,8 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
     c = ax.contour(w1, w3, signal2, levels=levels, colors='k', alpha=0.4)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r"$\omega_t$ ($\times 10^3\ \mathrm{cm}^{-1}$)")
+    ax.text(r'scale: {:3.1g}'.format(scale), 1., 1., transform=ax.transAxes,
+            horizontalalignment='right')
 
     loc = matplotlib.ticker.MaxNLocator(11)
     fmt = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=True)
@@ -104,6 +106,8 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
     ax.set_xlim(*axlim)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r'norm. abs.')
+    ax.text(r'scale: {:3.1g}'.format(scale), 1., 1., transform=ax.transAxes,
+            horizontalalignment='right')
 
     # add eigenstate positions
     if eigenenergies is not None:
