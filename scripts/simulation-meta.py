@@ -179,7 +179,7 @@ def simulate(metacfg_path, templatecfg_path, ncores):
             for k in metadsets.keys():
                 meta[k][idx, :] = simout.metainfo[k]
 
-        cfg_foff = toolz.take(1, cfg_stream)
+        cfg_foff = list(toolz.take(1, cfg_stream))
         cfg_foff.analytic_rotational_averaging = True
         futures = pool.map(run_simulation, [cfg_foff,])
         for simout in tqdm.tqdm(futures, desc='field off case',
