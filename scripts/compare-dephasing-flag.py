@@ -92,6 +92,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     s = str(figpath / '2d-real.png')
     pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits,
                 scale=scale)
+    ddref_real = ddref.copy()
 
     # load ref
     ddref = np.array(ddfile_complex['reference']).imag
@@ -138,6 +139,8 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref, path=s, axlim=limits,
                 scale=scale)
 
+    s = str(figpath / '2d-difference.png')
+    pool.submit(plot_2d, w1=w1, w3=w3, signal=ddref-ddref_real, path=s, axlim=limits)
 
     # do the same for absorption
     absref = np.array(absfile_real['reference'])
@@ -150,12 +153,17 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     ax, scale2 = plot_linear(w3=w3, signal=absref, path=s,
                         axlim=limits, eigenenergies=eigenenergies,
                         scale=scale)
+    absref_real = absref.copy()
 
     absref = np.array(absfile_complex['reference'])
     w3 = np.array(absfile_complex['w3'])
 
     s = str(figpath / 'linear-complex.png')
     plot_linear(w3=w3, signal=absref, path=s,
+                axlim=limits, scale=scale, ax=ax)
+
+    s = str(figpath / 'linear-difference.png')
+    plot_linear(w3=w3, signal=absref-absref_real, path=s,
                 axlim=limits, scale=scale, ax=ax)
 
 if __name__ == '__main__':
