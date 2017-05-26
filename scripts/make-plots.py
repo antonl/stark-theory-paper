@@ -160,9 +160,9 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     shape = (100, *absref.shape)
 
     tmp = da.from_array(absfile['00000/data'], chunks=shape)
-    pts_used = tmp.shape[0]
-    rdataon = tmp[:pts_used//2].mean(axis=0)
-    rdataoff = tmp[pts_used//2:].mean(axis=0)
+    pts_used = tmp.shape[0] - 1
+    rdataon = tmp[:pts_used].mean(axis=0)
+    rdataoff = tmp[pts_used]
     abs = StarkData(*dask.compute(rdataon, rdataoff))
     w3 = np.array(absfile['w3'])
 
