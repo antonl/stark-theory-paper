@@ -130,6 +130,8 @@ rule plot_compare_complex_dephasing:
     output:
         "simulations/compare-dephasing/{simdir}/figures/2d-real.png",
         "simulations/compare-dephasing/{simdir}/figures/2d-complex.png",
+        "simulations/compare-dephasing/{simdir}/figures/linear-real.png",
+        "simulations/compare-dephasing/{simdir}/figures/linear-complex.png",
     threads: 2
     shell:
         "cd simulations/compare-dephasing/{wildcards.simdir};"
@@ -187,6 +189,6 @@ rule clean_all:
         "simulations/quick/Ji-monomer-alpha/.clean",
         "simulations/quick/Ji-dimer-mu/.clean",
         "simulations/quick/Ji-dimer-mu-uncoupled/.clean",
-        "simulations/compare-dephasing/Ji-monomer-mu/.clean",
-
+        "simulations/compare-dephasing/Ji-monomer/.clean",
+        "simulations/compare-dephasing/Ji-dimer/.clean",
 
