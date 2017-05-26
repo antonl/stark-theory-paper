@@ -91,8 +91,8 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
     ax.add_artist(Line2D((0, 1), (0, 1), linewidth=2, color='k', alpha=0.5,
                          transform=ax.transAxes))
 
-    ax.relim()
-    ax.autoscale_view()
+    #ax.relim()
+    #ax.autoscale_view()
     fig.savefig(str(path))
 
 def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
@@ -114,13 +114,13 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
     signal2 /= scale
 
     ax.plot(w3, signal2, linewidth=2)
-    ax.set_xlim(*axlim)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r'norm. abs.')
     ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)), 
             transform=ax.transAxes,
             horizontalalignment='right',
             verticalalignment='bottom')
+    ax.set_xlim(*axlim)
 
     # add eigenstate positions
     if eigenenergies is not None:
@@ -133,7 +133,7 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
                   linewidth=2,
                   alpha=0.7)
 
-    ax.relim()
-    ax.autoscale_view()
+    #ax.relim()
+    #ax.autoscale_view()
     fig.savefig(str(path))
     return ax, scale

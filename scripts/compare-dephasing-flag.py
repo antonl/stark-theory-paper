@@ -161,11 +161,11 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
 
     s = str(figpath / 'linear-complex.png')
     pool.submit(plot_linear, w3=w3, signal=absref, path=s,
-                axlim=limits, scale=scale)
+                axlim=limits, eigenenergies=eigenenergies, scale=scale)
 
     s = str(figpath / 'linear-difference.png')
     pool.submit(plot_linear, w3=w3, signal=absref-absref_real, path=s,
-                axlim=limits, scale=scale)
+                axlim=limits, eigenenergies=eigenenergies, scale=scale)
 
 if __name__ == '__main__':
     make_figures()
