@@ -137,7 +137,7 @@ rule plot_compare_complex_dephasing:
         "cd simulations/compare-dephasing/{wildcards.simdir};"
         "python {DEPHASINGPLOTSCRIPT_PATH} . -c {threads} --limits 14.25 15.25 --fudge-factor 6.6; "
 
-ruleorder: 
+ruleorder:
     prepare_complex_dephasing > prep_ddess_sim
 
 rule run_linear_sim:
@@ -178,7 +178,10 @@ rule plot_all_quick:
         "simulations/quick/Ji-monomer-mu/figures/2d-reference.png",
         "simulations/quick/Ji-monomer-alpha/figures/2d-reference.png",
         "simulations/quick/Ji-dimer-mu/figures/2d-reference.png",
+        "simulations/quick/Ji-dimer-alpha/figures/2d-reference.png",
         "simulations/quick/Ji-dimer-mu-uncoupled/figures/2d-reference.png",
+        "simulations/quick/Ji-dimer-ct-mu/figures/2d-reference.png",
+        "simulations/quick/Ji-dimer-ct-alpha/figures/2d-reference.png",
 
 rule clean_sim:
     input:
