@@ -170,10 +170,20 @@ def simulate(metacfg_path, templatecfg_path, ncores):
             meta.create_dataset(k, shape=shape, dtype=dtype, chunks=chunks,
                     compression='gzip', compression_opts=4, shuffle=True)
 
-        futures = pool.map(run_simulation, toolz.take(pts_to_use, cfg_stream))
+        futures = pool.map(run_simulation, toolz.take(pts_to_use-1, cfg_stream))
 
         for simout in tqdm.tqdm(futures, desc='rotational averages',
-                                total=pts_to_use, ncols=100):
+                                total=pts_to_use-1, ncols=100):
+            idx = simout.id
+            dset[idx, :] = simout.signal
+            for k in metadsets.keys():
+                meta[k][idx, :] = simout.metainfo[k]
+
+        cfg_foff = toolz.take(1, cfg_stream)
+        cfg_foff.analytic_rotational_averaging = True
+        futures = pool.map(run_simulation, [cfg_foff,])
+        for simout in tqdm.tqdm(futures, desc='field off case',
+                                total=1, ncols=100):
             idx = simout.id
             dset[idx, :] = simout.signal
             for k in metadsets.keys():

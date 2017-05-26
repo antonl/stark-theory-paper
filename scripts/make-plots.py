@@ -70,7 +70,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     tmp = da.from_array(ddfile['00000/data'], chunks=shape)
     pts_used = tmp.shape[0] - 1 # assume we did Stark averaging
     rdataon = tmp[:pts_used].imag.mean(axis=0)
-    rdataoff = tmp[pts_used].imag
+    rdataoff = tmp[pts_used].imag # last one is the field-off data
     dd = StarkData(*dask.compute(rdataon, rdataoff))
     w3, w1 = np.array(ddfile['w3']), np.array(ddfile['w1'])
 
