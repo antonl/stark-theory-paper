@@ -150,21 +150,22 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
                      'without dephasing': fixed_energies/1e3}
 
     s = str(figpath / 'linear-real.png')
-    ax, scale2 = plot_linear(w3=w3, signal=absref, path=s,
+    pool.submit(plot_linear, w3=w3, signal=absref, path=s,
                         axlim=limits, eigenenergies=eigenenergies,
                         scale=scale)
+
     absref_real = absref.copy()
 
     absref = np.array(absfile_complex['reference'])
     w3 = np.array(absfile_complex['w3'])
 
     s = str(figpath / 'linear-complex.png')
-    plot_linear(w3=w3, signal=absref, path=s,
-                axlim=limits, scale=scale, ax=ax)
+    pool.submit(plot_linear, w3=w3, signal=absref, path=s,
+                axlim=limits, scale=scale)
 
     s = str(figpath / 'linear-difference.png')
-    plot_linear(w3=w3, signal=absref-absref_real, path=s,
-                axlim=limits, scale=scale, ax=ax)
+    pool.submit(plot_linear, w3=w3, signal=absref-absref_real, path=s,
+                axlim=limits, scale=scale)
 
 if __name__ == '__main__':
     make_figures()
