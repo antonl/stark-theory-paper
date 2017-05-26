@@ -12,6 +12,15 @@ from cycler import cycler
 def normalize(data):
     return data / np.abs(data).max()
 
+def latex_float(f, precision=2):
+    float_str = "{0:." + str(int(precision)) + "e}"
+    float_str = float_str.format(f)
+    if "e" in float_str:
+        base, exponent = float_str.split("e")
+        return r"{0} \times 10^{{{1}}}".format(base, int(exponent))
+    else:
+        return float_str
+
 def plot_evecs(energies, evecs2, which, path, axlim=(None, None)):
     pts_used = energies.shape[0]
     nvecs = energies.shape[1]
@@ -64,8 +73,10 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
     c = ax.contour(w1, w3, signal2, levels=levels, colors='k', alpha=0.4)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r"$\omega_t$ ($\times 10^3\ \mathrm{cm}^{-1}$)")
-    ax.text(r'scale: {:3.1g}'.format(scale), 1., 1., transform=ax.transAxes,
-            horizontalalignment='right')
+    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)), 
+            transform=ax.transAxes,
+            horizontalalignment='right',
+            verticalalignment='bottom')
 
     loc = matplotlib.ticker.MaxNLocator(11)
     fmt = matplotlib.ticker.ScalarFormatter(useOffset=False, useMathText=True)
@@ -106,8 +117,10 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
     ax.set_xlim(*axlim)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r'norm. abs.')
-    ax.text(r'scale: {:3.1g}'.format(scale), 1., 1., transform=ax.transAxes,
-            horizontalalignment='right')
+    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)), 
+            transform=ax.transAxes,
+            horizontalalignment='right',
+            verticalalignment='bottom')
 
     # add eigenstate positions
     if eigenenergies is not None:
