@@ -15,7 +15,20 @@ MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
 PLOTSCRIPT_PATH=str(pathlib.Path('scripts/make-plots.py').absolute())
 DEPHASINGPLOTSCRIPT_PATH=str(pathlib.Path('scripts/compare-dephasing-flag.py').absolute())
 MKVOLT_PATH=str(pathlib.Path('scripts/make-cfg-voltage-dependence.py').absolute())
+MKDDESSPLOT_PATH=str(pathlib.Path('scripts/make-ddess-plot.py').absolute())
 
+PLOT_FILES_DDESS = ['eigen-energies.info',
+                    '2d-reference.png',
+                    '2d-fieldon.png',
+                    '2d-fieldoff.png',
+                    '2d-stark.png',]
+
+PLOT_FILES_LINEAR = ['linear-reference.png',
+                     'linear-fieldoff.png',
+                     'linear-fieldon.png',
+                     'linear-stark.png',]
+                     #'linear-projections.png',
+                     #'linear-stark-projections.png']
 rule make_spectral_densities:
     input:
         "rawdata/oscillator-modes.csv"
@@ -200,6 +213,17 @@ rule run_voltage_dependence_ddess:
         "python {SIMSCRIPT_PATH} -c {threads} {input[0]} {input[1]};"
         "mv pump-probe.h5 {output[0]};"
 
+rule plot_voltage_dependence_ddess:
+    input:
+        "simulations/voltage-dependence/{simdir}/pump-probe-{field_id}.h5",
+    output:
+        expand("simulations/voltage-dependence/{{simdir}}/figures/pump-probe-{{field_id}}/{file}",
+            file=PLOT_FILES_DDESS)
+    threads: 6
+    shell:
+        #"cd simulations/voltage-dependence/{wildcards.simdir};"
+        "python {MKDDESSPLOT_PATH} {input} -c {threads} --limits 14.25 15.25 --fudge-factor 0.0; "
+
 rule collect_voltage_dependence_ddess_dir:
     input:
         expand("simulations/voltage-dependence/{{simdir}}/pump-probe-{field_id:03d}.h5",
@@ -208,6 +232,15 @@ rule collect_voltage_dependence_ddess_dir:
         temp("simulations/voltage-dependence/{simdir}/.ddess-voltage-dep-done")
     shell:
         "touch simulations/voltage-dependence/{wildcards.simdir}/.ddess-voltage-dep-done"
+
+rule plot_voltage_dependence_ddess_dir:
+    input:
+        expand("simulations/voltage-dependence/{{simdir}}/figures/pump-probe-{field_id:03d}/{file}",
+            field_id=range(VD_COUNT), file=PLOT_FILES_DDESS)
+    output:
+        temp("simulations/voltage-dependence/{simdir}/.plot-ddess-voltage-dep-done")
+    shell:
+        "touch simulations/voltage-dependence/{wildcards.simdir}/.plot-ddess-voltage-dep-done"
 
 rule plot_all_quick:
     input:
