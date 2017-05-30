@@ -8,12 +8,13 @@ TMPDIR=cfg['tmpdir']
 SCRATCHDIR=cfg['scratchdir']
 OUTPUTDIR=cfg['outputdir']
 THREADS=cfg['threads']
+VD_COUNT=cfg['voltage-dependence-count']
 
 SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
 MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
 PLOTSCRIPT_PATH=str(pathlib.Path('scripts/make-plots.py').absolute())
 DEPHASINGPLOTSCRIPT_PATH=str(pathlib.Path('scripts/compare-dephasing-flag.py').absolute())
-MKVOLT_PATH=str(pathlib.Path('scripts/make-cfg.voltage-dependence.py').absolute())
+MKVOLT_PATH=str(pathlib.Path('scripts/make-cfg-voltage-dependence.py').absolute())
 
 rule make_spectral_densities:
     input:
@@ -174,29 +175,37 @@ rule plot_sim_results:
         "cd {wildcards.simdir}; "
         "python {PLOTSCRIPT_PATH} . -c {threads} --limits 14.25 15.25 --fudge-factor 0.0; "
 
-rule prepare_voltage_dependence:
+rule prepare_voltage_dependence_ddess:
     input:
         "simulations/voltage-dependence/{simdir}/template-cfg.yaml",
         "simulations/voltage-dependence/{simdir}/metacfg.yaml",
     wildcard_constraints:
         simdir="[\d\w\-+]+"
     output:
-        dynamic("simulations/voltage-dependence/{simdir}/template-cfg-{field_id}.yaml"),
-        "simulations/voltage-depenedence/{simdir}/voltagecfg.yaml"
+        "simulations/voltage-dependence/{simdir}/voltagecfg.yaml"
     shell:
         "cd simulations/voltage-dependence/{wildcards.simdir}; "
-        "python {MKVOLT_PATH} --range 0.01, 1.1 --count 5 template-cfg.yaml; "
+        "python {MKVOLT_PATH} --range 0.01 1.1 --count {VD_COUNT} template-cfg.yaml; "
 
 rule run_voltage_dependence_ddess:
     input:
         "simulations/voltage-dependence/{simdir}/metacfg.yaml",
-        "simulations/voltage-dependence/{simdir}/template-cfg-{field_id}.yaml",
+        expand("simulations/voltage-dependence/{{simdir}}/template-cfg-{field_id:03d}.yaml",
+            field_id=range(VD_COUNT))
     output:
-        "simulations/voltage-dependence/{simdir}/pump-probe-{field_id}.yaml"
+        expand("simulations/voltage-dependence/{{simdir}}/pump-probe-{field_id:03d}.h5",
+            field_id=range(VD_COUNT)),
+        temp("simulations/voltage-dependence/{simdir}/.voltage-dep-done")
     threads: THREADS
-    shell:
-        "python {SIMSCRIPT_PATH} -c {threads} {input[0]} {input[1]};"
-        "mv pump-probe.h5 {output[0]};"
+    run:
+        inp0 = input[0]
+        for i in range(VD_COUNT):
+            inpn = input[i+1]
+            outpn = output[i]
+
+            shell("python {SIMSCRIPT_PATH} -c {threads} {inp0} {inpn};"
+                  "mv pump-probe.h5 {outpn};")
+        shell("touch simulations/voltage-dependence/{wildcards.simdir}/.voltage-dep-done")
 
 rule plot_all_quick:
     input:

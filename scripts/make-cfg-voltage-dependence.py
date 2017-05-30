@@ -5,8 +5,7 @@ from pyqcfp.runqcfp import QcfpConfig
 import numpy as np
 
 class VoltageConfig(straitlets.Serializable):
-    stark_field_magnitudes = straitlets.List(type=straitlets.Float,
-                                           default_value=[1.1])
+    stark_field_magnitudes = straitlets.List(trait=straitlets.Float, default_value=[1.1])
     range = straitlets.Tuple(type=straitlets.Float, default_value=(0.01, 1.1))
     count = straitlets.Integer(default_value=3)
 
@@ -19,8 +18,12 @@ class VoltageConfig(straitlets.Serializable):
 def doit(cfgpath, range, count):
     cfg = QcfpConfig.from_yaml_file(str(cfgpath))
 
-    vcfg = VoltageConfig(range=range, count=count)
-    vcfg.voltages = list(np.linspace(vcfg.range[0], vcfg.range[1], vcfg.count))
+    vcfg = VoltageConfig()
+    vcfg.range = range
+    vcfg.count = count
+    vcfg.stark_field_magnitudes = np.linspace(vcfg.range[0], 
+                                              vcfg.range[1],
+                                              vcfg.count).tolist()
 
     with open('voltagecfg.yaml', 'w') as f:
         vcfg.to_yaml(stream=f)
@@ -31,7 +34,7 @@ def doit(cfgpath, range, count):
         with open(p, 'w') as f:
             vec = np.array(cfg.stark_field_vector)
             vec /= np.linalg.norm(vec)
-            cfg.stark_field_vector = list(m*vec)
+            cfg.stark_field_vector = (m*vec).tolist()
             cfg.to_yaml(stream=f)
 
 if __name__ == '__main__':
