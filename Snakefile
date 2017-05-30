@@ -9,6 +9,7 @@ SCRATCHDIR=cfg['scratchdir']
 OUTPUTDIR=cfg['outputdir']
 THREADS=cfg['threads']
 VD_COUNT=cfg['voltage-dependence-count']
+VD_RANGE_MIN, VD_RANGE_MAX=cfg['voltage-dependence-range']
 
 SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
 MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
@@ -200,7 +201,7 @@ rule prepare_voltage_dependence_ddess:
             field_id=range(VD_COUNT))
     shell:
         "cd simulations/voltage-dependence/{wildcards.simdir}; "
-        "python {MKVOLT_PATH} --range 0.01 1.1 --count {VD_COUNT} template-cfg.yaml; "
+        "python {MKVOLT_PATH} --range {VD_RANGE_MIN} {VD_RANGE_MAX} --count {VD_COUNT} template-cfg.yaml; "
 
 rule run_voltage_dependence_ddess:
     input:
@@ -241,6 +242,17 @@ rule plot_voltage_dependence_ddess_dir:
         temp("simulations/voltage-dependence/{simdir}/.plot-ddess-voltage-dep-done")
     shell:
         "touch simulations/voltage-dependence/{wildcards.simdir}/.plot-ddess-voltage-dep-done"
+
+rule make_voltage_dependence_ddess_video:
+    input:
+        expand("simulations/voltage-dependence/{{simdir}}/figures/pump-probe-{field_id:03d}/{{plotfile}}.png",
+            field_id=range(VD_COUNT))
+    output:
+        "simulations/voltage-dependence/{simdir}/figures/{plotfile}.mp4"
+    shell:
+        "cd simulations/voltage-dependence/{wildcards.simdir}/figures; "
+        "ffmpeg -framerate 1 -i pump-probe-%03d/{wildcards.plotfile}.png -c:v libx264 -r 30 "
+        "-pix_fmt yuv420p {wildcards.plotfile}.mp4"
 
 rule plot_all_quick:
     input:

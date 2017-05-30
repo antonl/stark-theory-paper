@@ -1,5 +1,8 @@
 outputdir: "/home/aloukian/Documents/stark-theory-paper/"
 tmpdir: "/dev/shm/simulations-aloukian/"
 scratchdir: "/dev/shm/simulations-aloukian/"
-voltage-dependence-count: 5
+voltage-dependence-count: 8
+voltage-dependence-range: 
+    - 0.01 
+    - 2.1
 threads: 20
