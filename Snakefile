@@ -182,7 +182,9 @@ rule prepare_voltage_dependence_ddess:
     wildcard_constraints:
         simdir="[\d\w\-+]+"
     output:
-        "simulations/voltage-dependence/{simdir}/voltagecfg.yaml"
+        "simulations/voltage-dependence/{simdir}/voltagecfg.yaml",
+        expand("simulations/voltage-dependence/{{simdir}}/template-cfg-{field_id:03d}.yaml",
+            field_id=range(VD_COUNT))
     shell:
         "cd simulations/voltage-dependence/{wildcards.simdir}; "
         "python {MKVOLT_PATH} --range 0.01 1.1 --count {VD_COUNT} template-cfg.yaml; "
@@ -190,22 +192,22 @@ rule prepare_voltage_dependence_ddess:
 rule run_voltage_dependence_ddess:
     input:
         "simulations/voltage-dependence/{simdir}/metacfg.yaml",
-        expand("simulations/voltage-dependence/{{simdir}}/template-cfg-{field_id:03d}.yaml",
+        "simulations/voltage-dependence/{simdir}/template-cfg-{field_id}.yaml",
+    output:
+        "simulations/voltage-dependence/{simdir}/pump-probe-{field_id}.h5",
+    threads: THREADS
+    shell:
+        "python {SIMSCRIPT_PATH} -c {threads} {input[0]} {input[1]};"
+        "mv pump-probe.h5 {output[0]};"
+
+rule collect_voltage_dependence_ddess_dir:
+    input:
+        expand("simulations/voltage-dependence/{{simdir}}/pump-probe-{field_id:03d}.h5",
             field_id=range(VD_COUNT))
     output:
-        expand("simulations/voltage-dependence/{{simdir}}/pump-probe-{field_id:03d}.h5",
-            field_id=range(VD_COUNT)),
-        temp("simulations/voltage-dependence/{simdir}/.voltage-dep-done")
-    threads: THREADS
-    run:
-        inp0 = input[0]
-        for i in range(VD_COUNT):
-            inpn = input[i+1]
-            outpn = output[i]
-
-            shell("python {SIMSCRIPT_PATH} -c {threads} {inp0} {inpn};"
-                  "mv pump-probe.h5 {outpn};")
-        shell("touch simulations/voltage-dependence/{wildcards.simdir}/.voltage-dep-done")
+        temp("simulations/voltage-dependence/{simdir}/.ddess-voltage-dep-done")
+    shell:
+        "touch simulations/voltage-dependence/{wildcards.simdir}/.ddess-voltage-dep-done"
 
 rule plot_all_quick:
     input:
