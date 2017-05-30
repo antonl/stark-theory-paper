@@ -98,8 +98,22 @@ def simulate(metacfg_path, templatecfg_path, ncores):
                         self._pts_seen = 0
 
                     return cfg
+            class SliceCfg:
+                # throw away remaining points for the analytic averaging
+                def __init__(self, start, stop, step):
+                    self._start = start
+                    self._stop = stop
+                    self._step = step
+
+                def transformed(self, cfg):
+                    for c in toolz.islice(cfg,
+                                          self.start, self.stop, self.step):
+                        yield c
             lmb = ApplyLambda(PeriodicConfig(mesh_gen.npts))
+            sl = SliceCfg(mesh_gen.npts + 1) # should probably be a common
+                                             # variable
             lst.append(lmb)
+            lst.append(sl)
 
     lst.append(id_gen)
 
