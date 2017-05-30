@@ -27,7 +27,7 @@ from plotutils import *
 @click.option('-c','--ncores', default=6)
 @click.option('--fudge-factor', default=0.)
 @click.option('--scale', default=-1)
-def make_figures(file, limits, ncores, fudge_factor, scale):
+def doit(file, limits, ncores, fudge_factor, scale):
     # look for pump-probe data file
     path = Path(file)
     pool = ProcessPoolExecutor(max_workers=ncores)
@@ -88,8 +88,8 @@ def make_figures(file, limits, ncores, fudge_factor, scale):
     # prepare folder for writing things
     p = Path(path)
     figpath = (p.parent / 'figures' / p.with_suffix('').name)
-    print('Figure path: ', str(figpath))
-    figpath.mkdir(exist_ok=True)
+    #print('Figure path: ', str(figpath))
+    figpath.mkdir(exist_ok=True, parents=True)
 
     with (figpath / 'eigen-energies.info').open('w') as f:
         print('Eigen-energies:', energies, file=f)
@@ -133,3 +133,6 @@ def make_figures(file, limits, ncores, fudge_factor, scale):
     for i in range(nstates):
         s = str(figpath / '2d-evecs{:d}.png'.format(i))
         pool.submit(plot_evecs, corr_energies, evecs2_trace, i, s, axlim=limits)
+
+if __name__ == '__main__':
+    doit()
