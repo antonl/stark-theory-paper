@@ -55,7 +55,7 @@ metacfg.outputdir = str(OUTPUTDIR)
 
 metacfg.randstate = [0,[0,],0]
 metacfg.chunksize = 1
-metacfg.mesh_size = 5,5
+metacfg.mesh_size = 11,13
 metacfg.save_plots = True
 metacfg.use_rotations = True
 metacfg.use_stark = True
