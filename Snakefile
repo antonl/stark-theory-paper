@@ -205,10 +205,21 @@ rule clean_sim:
 
 rule clean_all:
     input:
+        # quick simulations
         "simulations/quick/Ji-monomer-mu/.clean",
         "simulations/quick/Ji-monomer-alpha/.clean",
         "simulations/quick/Ji-dimer-mu/.clean",
         "simulations/quick/Ji-dimer-mu-uncoupled/.clean",
+        "simulations/quick/Ji-dimer-ct-mu/.clean",
+        "simulations/quick/Ji-dimer-ct-alpha/.clean",
+        # compare no complex dephasing flag
         "simulations/compare-dephasing/Ji-monomer/.clean",
         "simulations/compare-dephasing/Ji-dimer/.clean",
+        # large mesh simulations
+        "simulations/large-mesh/Ji-monomer-mu/.clean",
+        "simulations/large-mesh/Ji-monomer-alpha/.clean",
+        "simulations/large-mesh/Ji-dimer-mu/.clean",
+        "simulations/large-mesh/Ji-dimer-mu-uncoupled/.clean",
+        "simulations/large-mesh/Ji-dimer-ct-mu/.clean",
+        "simulations/large-mesh/Ji-dimer-ct-alpha/.clean",
 

@@ -2,6 +2,7 @@ import h5py
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 import toolz
+from itertools import islice
 from pathlib import Path
 import pyqcfp
 from pyqcfp.delayed import (SimulationCheckpoint, CfgIdentity,
@@ -106,12 +107,11 @@ def simulate(metacfg_path, templatecfg_path, ncores):
                     self._step = step
 
                 def transformed(self, cfg):
-                    for c in toolz.islice(cfg,
-                                          self.start, self.stop, self.step):
+                    for c in islice(cfg, self._start, self._stop, self._step):
                         yield c
             lmb = ApplyLambda(PeriodicConfig(mesh_gen.npts))
-            sl = SliceCfg(mesh_gen.npts + 1) # should probably be a common
-                                             # variable
+            sl = SliceCfg(None, mesh_gen.npts + 1, None) # should probably be a common
+                                                         # variable
             lst.append(lmb)
             lst.append(sl)
 
