@@ -45,7 +45,7 @@ cfg.simulation_type = 'pump-probe'
 cfg.simulation_code = 'excitons-2d'
 #cfg.simulation_type = 'absorption'
 #cfg.simulation_code = 'excitons-abs'
-cfg.full_output = True
+cfg.full_output = False
 cfg.analytic_orientational_averaging = False
 cfg.return_axes = False
 
