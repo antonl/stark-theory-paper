@@ -306,6 +306,14 @@ rule make_voltage_dependence_linear_video:
         "ffmpeg -framerate 1 -i absorption-%03d/{wildcards.plotfile}.png -c:v libx264 -r 30 "
         "-pix_fmt yuv420p {wildcards.plotfile}.mp4"
 
+rule run_ttt_sim:
+    input:
+        "simulations/ttt-sim/{simdir}/template-cfg.yaml",
+    output:
+        "cd simulations/ttt-sim/{wildcards.simdir}; "
+        "python {TTTSIM_PATH} template-cfg.yaml; "
+
+
 rule plot_all_quick:
     input:
         "simulations/quick/Ji-monomer-mu/figures/2d-reference.png",
