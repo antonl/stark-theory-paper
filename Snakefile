@@ -17,6 +17,7 @@ PLOTSCRIPT_PATH=str(pathlib.Path('scripts/make-plots.py').absolute())
 DEPHASINGPLOTSCRIPT_PATH=str(pathlib.Path('scripts/compare-dephasing-flag.py').absolute())
 MKVOLT_PATH=str(pathlib.Path('scripts/make-cfg-voltage-dependence.py').absolute())
 MKDDESSPLOT_PATH=str(pathlib.Path('scripts/make-ddess-plot.py').absolute())
+MKLINEARPLOT_PATH=str(pathlib.Path('scripts/make-linear-plot.py').absolute())
 
 PLOT_FILES_DDESS = ['eigen-energies.info',
                     '2d-reference.png',
@@ -80,13 +81,13 @@ rule run_2dess_sim:
 
 rule prep_linear_sim:
     input:
-        "{simdir}/template-cfg.yaml",
+        "{simdir}/{cfgname}.yaml",
         "{simdir}/metacfg.yaml",
     output:
-        "{simdir}/template-cfg-linear.yaml"
+        "{simdir}/{cfgname}-linear.yaml"
     shell:
         "cd {wildcards.simdir}; "
-        "python {MKLIN_PATH} template-cfg.yaml; "
+        "python {MKLIN_PATH} {wildcards.cfgname}.yaml; "
 
 rule prepare_complex_dephasing:
     input:
@@ -214,6 +215,17 @@ rule run_voltage_dependence_ddess:
         "python {SIMSCRIPT_PATH} -c {threads} {input[0]} {input[1]};"
         "mv pump-probe.h5 {output[0]};"
 
+rule run_voltage_dependence_linear:
+    input:
+        "simulations/voltage-dependence/{simdir}/metacfg.yaml",
+        "simulations/voltage-dependence/{simdir}/template-cfg-{field_id}.yaml",
+    output:
+        "simulations/voltage-dependence/{simdir}/absorption-{field_id}.h5",
+    threads: THREADS
+    shell:
+        "python {SIMSCRIPT_PATH} -c {threads} {input[0]} {input[1]};"
+        "mv absorption.h5 {output[0]};"
+
 rule plot_voltage_dependence_ddess:
     input:
         "simulations/voltage-dependence/{simdir}/pump-probe-{field_id}.h5",
@@ -225,6 +237,17 @@ rule plot_voltage_dependence_ddess:
         #"cd simulations/voltage-dependence/{wildcards.simdir};"
         "python {MKDDESSPLOT_PATH} {input} -c {threads} --limits 14.25 15.25 --fudge-factor 0.0; "
 
+rule plot_voltage_dependence_linear:
+    input:
+        "simulations/voltage-dependence/{simdir}/absorption-{field_id}.h5",
+    output:
+        expand("simulations/voltage-dependence/{{simdir}}/figures/absorption-{{field_id}}/{file}",
+            file=PLOT_FILES_LINEAR)
+    threads: 6
+    shell:
+        #"cd simulations/voltage-dependence/{wildcards.simdir};"
+        "python {MKLINEARPLOT_PATH} {input} -c {threads} --limits 14.25 15.25 --fudge-factor 0.0; "
+
 rule collect_voltage_dependence_ddess_dir:
     input:
         expand("simulations/voltage-dependence/{{simdir}}/pump-probe-{field_id:03d}.h5",
@@ -233,6 +256,15 @@ rule collect_voltage_dependence_ddess_dir:
         temp("simulations/voltage-dependence/{simdir}/.ddess-voltage-dep-done")
     shell:
         "touch simulations/voltage-dependence/{wildcards.simdir}/.ddess-voltage-dep-done"
+
+rule collect_voltage_dependence_linear_dir:
+    input:
+        expand("simulations/voltage-dependence/{{simdir}}/absorption-{field_id:03d}.h5",
+            field_id=range(VD_COUNT))
+    output:
+        temp("simulations/voltage-dependence/{simdir}/.linear-voltage-dep-done")
+    shell:
+        "touch simulations/voltage-dependence/{wildcards.simdir}/.linear-voltage-dep-done"
 
 rule plot_voltage_dependence_ddess_dir:
     input:
@@ -243,6 +275,15 @@ rule plot_voltage_dependence_ddess_dir:
     shell:
         "touch simulations/voltage-dependence/{wildcards.simdir}/.plot-ddess-voltage-dep-done"
 
+rule plot_voltage_dependence_linear_dir:
+    input:
+        expand("simulations/voltage-dependence/{{simdir}}/figures/absorption-{field_id:03d}/{file}",
+            field_id=range(VD_COUNT), file=PLOT_FILES_LINEAR)
+    output:
+        temp("simulations/voltage-dependence/{simdir}/.plot-linear-voltage-dep-done")
+    shell:
+        "touch simulations/voltage-dependence/{wildcards.simdir}/.plot-linear-voltage-dep-done"
+
 rule make_voltage_dependence_ddess_video:
     input:
         expand("simulations/voltage-dependence/{{simdir}}/figures/pump-probe-{field_id:03d}/{{plotfile}}.png",
@@ -252,6 +293,17 @@ rule make_voltage_dependence_ddess_video:
     shell:
         "cd simulations/voltage-dependence/{wildcards.simdir}/figures; "
         "ffmpeg -framerate 1 -i pump-probe-%03d/{wildcards.plotfile}.png -c:v libx264 -r 30 "
+        "-pix_fmt yuv420p {wildcards.plotfile}.mp4"
+
+rule make_voltage_dependence_linear_video:
+    input:
+        expand("simulations/voltage-dependence/{{simdir}}/figures/absorption-{field_id:03d}/{{plotfile}}.png",
+            field_id=range(VD_COUNT))
+    output:
+        "simulations/voltage-dependence/{simdir}/figures/{plotfile}.mp4"
+    shell:
+        "cd simulations/voltage-dependence/{wildcards.simdir}/figures; "
+        "ffmpeg -framerate 1 -i absorption-%03d/{wildcards.plotfile}.png -c:v libx264 -r 30 "
         "-pix_fmt yuv420p {wildcards.plotfile}.mp4"
 
 rule plot_all_quick:
