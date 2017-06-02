@@ -218,7 +218,7 @@ rule run_voltage_dependence_ddess:
 rule run_voltage_dependence_linear:
     input:
         "simulations/voltage-dependence/{simdir}/metacfg.yaml",
-        "simulations/voltage-dependence/{simdir}/template-cfg-{field_id}.yaml",
+        "simulations/voltage-dependence/{simdir}/template-cfg-{field_id}-linear.yaml",
     output:
         "simulations/voltage-dependence/{simdir}/absorption-{field_id}.h5",
     threads: THREADS

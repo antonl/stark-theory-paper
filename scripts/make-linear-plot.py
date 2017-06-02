@@ -71,3 +71,5 @@ def doit(file, limits, ncores, fudge_factor, scale):
     pool.submit(plot_linear, w3=w3, signal=abs.fieldon - abs.fieldoff, path=s,
                 axlim=limits, scale=scale)
 
+if __name__ == '__main__':
+    doit()
