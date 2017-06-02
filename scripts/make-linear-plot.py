@@ -6,6 +6,7 @@ import click
 from pathlib import Path
 from collections import namedtuple
 from concurrent.futures import ProcessPoolExecutor
+from pyqcfp import QcfpConfig
 
 StarkData = namedtuple('StarkData', ['fieldon', 'fieldoff'])
 
@@ -44,8 +45,9 @@ def doit(file, limits, ncores, fudge_factor, scale):
 
     absref = np.array(absfile['reference'])
     shape = (100, *absref.shape)
-    cfg = str(absfile['cfg'])
-    print(cfg)
+    cfg = QcfpConfig.from_yaml(str(np.array(absfile['cfg'])))
+    # get field magnitude
+    stark_field_magnitude = np.linalg.norm(cfg.stark_field_vector)
 
     tmp = da.from_array(absfile['00000/data'], chunks=shape)
     pts_used = tmp.shape[0] - 1
@@ -62,19 +64,23 @@ def doit(file, limits, ncores, fudge_factor, scale):
 
     s = str(figpath / 'linear-reference.png')
     pool.submit(plot_linear, w3=w3, signal=absref, path=s,
-                axlim=limits, scale=scale)
+                axlim=limits, scale=scale,
+                field=stark_field_magnitude)
 
     s = str(figpath / 'linear-fieldoff.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldoff, path=s,
-                axlim=limits, scale=scale)
+                axlim=limits, scale=scale,
+                field=stark_field_magnitude)
 
     s = str(figpath / 'linear-fieldon.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldon, path=s,
-                axlim=limits, scale=scale)
+                axlim=limits, scale=scale,
+                field=stark_field_magnitude)
 
     s = str(figpath / 'linear-stark.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldon - abs.fieldoff, path=s,
-                axlim=limits, scale=scale, ycenter=True)
+                axlim=limits, scale=scale, ycenter=True,
+                field=stark_field_magnitude)
 
 if __name__ == '__main__':
     doit()

@@ -121,12 +121,12 @@ def plot_linear(w3, signal, path, scale=None, field=None,
     ax.set_ylabel(r'norm. abs.')
     s = r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale))
     if field is not None:
-        s += '\n'+ r'$\mathrm{{field:}} {!s}$'.format(latex_float(field))
+        s += '\n'+ r'$\mathrm{{field:}} {!s}\ \mathrm{{MV/cm}}$'.format(latex_float(field))
 
     ax.text(0.99, 0.01, s,
             transform=ax.transAxes,
             horizontalalignment='right',
-            verticalalignment='bottom')
+            verticalalignment='bottom', size=10)
     ax.set_xlim(*axlim)
     if ycenter:
         ax.set_ylim(-1.05, 1.05)
