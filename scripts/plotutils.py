@@ -122,7 +122,7 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
             verticalalignment='bottom')
     ax.set_xlim(*axlim)
     ax.set_ylim(-1.05, 1.05)
-    ax.add_line(axlim, [0, 0], alpha=0.8, linestyle='--', linewidth=0.5)
+    ax.add_line(Line2D(axlim, [0, 0], alpha=0.8, linestyle='--', linewidth=0.5))
 
     # add eigenstate positions
     if eigenenergies is not None:
