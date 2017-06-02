@@ -73,7 +73,7 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
     c = ax.contour(w1, w3, signal2, levels=levels, colors='k', alpha=0.4)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r"$\omega_t$ ($\times 10^3\ \mathrm{cm}^{-1}$)")
-    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)), 
+    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)),
             transform=ax.transAxes,
             horizontalalignment='right',
             verticalalignment='bottom')
@@ -116,11 +116,13 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
     ax.plot(w3, signal2, linewidth=2)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r'norm. abs.')
-    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)), 
+    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)),
             transform=ax.transAxes,
             horizontalalignment='right',
             verticalalignment='bottom')
     ax.set_xlim(*axlim)
+    ax.set_ylim(-1.05, 1.05)
+    ax.add_line(axlim, [0, 0], alpha=0.8, linestyle='--', linewidth=0.5)
 
     # add eigenstate positions
     if eigenenergies is not None:
