@@ -95,8 +95,11 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
     #ax.autoscale_view()
     fig.savefig(str(path))
 
-def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
-                eigenenergies=None, ycenter=False):
+def plot_linear(w3, signal, path, scale=None, field=None,
+                axlim=(None, None),
+                ax=None,
+                eigenenergies=None,
+                ycenter=False):
 
     w3 = w3.copy()/1e3
     signal2 = signal.copy()
@@ -116,7 +119,11 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
     ax.plot(w3, signal2, linewidth=2)
     ax.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
     ax.set_ylabel(r'norm. abs.')
-    ax.text(0.99, 0.01, r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale)),
+    s = r'$\mathrm{{scale:}} {!s}$'.format(latex_float(scale))
+    if field is not None:
+        s += '\n'+ r'$\mathrm{{field:}} {!s}$'.format(latex_float(field))
+
+    ax.text(0.99, 0.01, s,
             transform=ax.transAxes,
             horizontalalignment='right',
             verticalalignment='bottom')

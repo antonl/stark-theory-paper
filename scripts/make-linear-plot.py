@@ -44,6 +44,8 @@ def doit(file, limits, ncores, fudge_factor, scale):
 
     absref = np.array(absfile['reference'])
     shape = (100, *absref.shape)
+    cfg = str(absfile['cfg'])
+    print(cfg)
 
     tmp = da.from_array(absfile['00000/data'], chunks=shape)
     pts_used = tmp.shape[0] - 1
