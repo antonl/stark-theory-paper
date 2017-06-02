@@ -6,6 +6,7 @@ import click
 from pathlib import Path
 from collections import namedtuple
 from concurrent.futures import ProcessPoolExecutor
+from pyqcfp import QcfpConfig
 
 StarkData = namedtuple('StarkData', ['fieldon', 'fieldoff'])
 
@@ -66,6 +67,11 @@ def doit(file, limits, ncores, fudge_factor, scale):
     redfield = np.diag(redfield)[1:nstates+1]
     dephasingmat = np.array(ddfile['meta/lifetime dephasing matrix'])[:, ::2] + \
                    1j*np.array(ddfile['meta/lifetime dephasing matrix'])[:, 1::2]
+
+    cfg = QcfpConfig.from_yaml(str(np.array(ddfile['cfg'])))
+    if not cfg.include_complex_lifetimes:
+        dephasingmat = dephasingmat.real
+
     imagdeph = dephasingmat[1:nstates+1,0].imag
 
     fixed_energies = energies - reorgs
@@ -82,6 +88,9 @@ def doit(file, limits, ncores, fudge_factor, scale):
                                          'matrix'])[:,:,::2] + \
                          1j*np.array(ddfile['00000/meta/lifetime dephasing '
                                             'matrix'])[:,:,1::2]
+    if not cfg.include_complex_lifetimes:
+        dephasingmat_trace = dephasingmat_trace.real
+
     imagdeph_trace = dephasingmat_trace[:, 1:nstates+1,0].imag
     corr_energies = energies_trace - reorgs_trace + imagdeph_trace + fudge_factor
 
