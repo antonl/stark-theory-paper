@@ -96,7 +96,7 @@ def plot_2d(w1, w3, signal, path, invert_w1=False, scale=None,
     fig.savefig(str(path))
 
 def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
-                eigenenergies=None):
+                eigenenergies=None, ycenter=False):
 
     w3 = w3.copy()/1e3
     signal2 = signal.copy()
@@ -121,8 +121,10 @@ def plot_linear(w3, signal, path, scale=None, axlim=(None, None), ax=None,
             horizontalalignment='right',
             verticalalignment='bottom')
     ax.set_xlim(*axlim)
-    ax.set_ylim(-1.05, 1.05)
-    ax.add_line(Line2D(axlim, [0, 0], alpha=0.8, linestyle='--', linewidth=0.5))
+    if ycenter:
+        ax.set_ylim(-1.05, 1.05)
+        ax.add_line(Line2D(axlim, [0, 0], alpha=0.8, linestyle='--',
+                           linewidth=0.5, color='k'))
 
     # add eigenstate positions
     if eigenenergies is not None:

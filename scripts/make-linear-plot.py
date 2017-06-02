@@ -72,7 +72,7 @@ def doit(file, limits, ncores, fudge_factor, scale):
 
     s = str(figpath / 'linear-stark.png')
     pool.submit(plot_linear, w3=w3, signal=abs.fieldon - abs.fieldoff, path=s,
-                axlim=limits, scale=scale)
+                axlim=limits, scale=scale, ycenter=True)
 
 if __name__ == '__main__':
     doit()
