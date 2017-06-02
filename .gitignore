@@ -3,10 +3,12 @@
 *.h5
 *.wrk
 *.txt
-template-cfg.yaml
+template-cfg*.yaml
 metacfg.yaml
+voltagecfg.yaml
 inp*.inp
 outp*.outp
 *.text
 *.png
 .idea
+figures

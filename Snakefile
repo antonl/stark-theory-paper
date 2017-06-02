@@ -326,6 +326,15 @@ rule plot_all_large_mesh:
         "simulations/large-mesh/Ji-dimer-ct-mu/figures/2d-reference.png",
         "simulations/large-mesh/Ji-dimer-ct-alpha/figures/2d-reference.png",
 
+rule plot_all_voltage_dependence:
+    input:
+        "simulations/voltage-dependence/Ji-monomer-mu/figures/2d-stark.mp4",
+        "simulations/voltage-dependence/Ji-monomer-mu/figures/2d-fieldon.mp4",
+        "simulations/voltage-dependence/Ji-dimer-mu/figures/2d-stark.mp4",
+        "simulations/voltage-dependence/Ji-dimer-mu/figures/2d-fieldon.mp4",
+        "simulations/voltage-dependence/Ji-dimer-ct-mu/figures/2d-stark.mp4",
+        "simulations/voltage-dependence/Ji-dimer-ct-mu/figures/2d-fieldon.mp4",
+
 rule clean_sim:
     input:
         "{simdir}/Ji-spd.txt"
@@ -335,6 +344,12 @@ rule clean_sim:
         "rm -f {wildcards.simdir}/*.{{wrk,txt,yaml,h5}};"
         "rm -rf {wildcards.simdir}/figures;"
         "touch {wildcards.simdir}/.clean"
+
+rule clean_voltage_dependence:
+    input:
+        "simulations/voltage-dependence/Ji-monomer-mu/.clean",
+        "simulations/voltage-dependence/Ji-dimer-mu/.clean",
+        "simulations/voltage-dependence/Ji-dimer-ct-mu/.clean",
 
 rule clean_all:
     input:
