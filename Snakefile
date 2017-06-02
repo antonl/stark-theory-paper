@@ -18,6 +18,7 @@ DEPHASINGPLOTSCRIPT_PATH=str(pathlib.Path('scripts/compare-dephasing-flag.py').a
 MKVOLT_PATH=str(pathlib.Path('scripts/make-cfg-voltage-dependence.py').absolute())
 MKDDESSPLOT_PATH=str(pathlib.Path('scripts/make-ddess-plot.py').absolute())
 MKLINEARPLOT_PATH=str(pathlib.Path('scripts/make-linear-plot.py').absolute())
+TTTSIM_PATH=str(pathlib.Path('scripts/simulation-ttt.py').absolute())
 
 PLOT_FILES_DDESS = ['eigen-energies.info',
                     '2d-reference.png',
@@ -310,9 +311,11 @@ rule run_ttt_sim:
     input:
         "simulations/ttt-sim/{simdir}/template-cfg.yaml",
     output:
+        expand("simulations/ttt-sim/{{simdir}}/{files}.{exts}",
+            files=['rephasing', 'nonrephasing'], exts=['inp', 'outp', 'text'])
+    shell:
         "cd simulations/ttt-sim/{wildcards.simdir}; "
         "python {TTTSIM_PATH} template-cfg.yaml; "
-
 
 rule plot_all_quick:
     input:

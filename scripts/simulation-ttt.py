@@ -8,7 +8,7 @@ from pyqcfp.runqcfp import render_template
 from pkg_resources import Requirement, resource_filename
 BINDIR = resource_filename(Requirement.parse("pyqcfp"), "bin")
 
-bin_path = str(pathlib.Path(BINDIR) / 'pyqcfp.calculator_2dttt_excitons')
+bin_path = str(pathlib.Path(BINDIR) / 'qcfp.calculator_2dttt_excitons')
 
 @click.command()
 @click.argument('template_yaml', type=click.Path(file_okay=True,
@@ -27,11 +27,11 @@ def doit(template_yaml):
 
     simdir = path.parent
 
-    inpr = simdir / 'inp-rephasing.inp'
+    inpr = simdir / 'rephasing.inp'
     with open(str(inpr), 'w') as f:
         f.write(render_template(cfg_rephasing))
 
-    inpnr = simdir / 'inp-nonrephasing.inp'
+    inpnr = simdir / 'nonrephasing.inp'
     with open(str(inpnr), 'w') as f:
         f.write(render_template(cfg_nonrephasing))
 
