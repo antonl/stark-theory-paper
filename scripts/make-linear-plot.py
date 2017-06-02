@@ -33,6 +33,9 @@ def doit(file, limits, ncores, fudge_factor, scale):
     pool = ProcessPoolExecutor(max_workers=ncores)
     #rcParams.update(params)
 
+    if scale < 0:
+        scale = None
+
     try:
         absfile = h5py.File(str(path), 'r')
     except FileNotFoundError as e:
