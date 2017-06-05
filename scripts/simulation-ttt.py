@@ -5,6 +5,7 @@ from copy import deepcopy
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from  plotutils import *
 import pyqcfp
 from pyqcfp.runqcfp import render_template
 
@@ -25,10 +26,13 @@ def doit(template_yaml):
     cfg.stark_perturbation = False
     cfg.analytic_orientational_averaging = True
 
+    cf1 = 0.5*(cfg.w1_min + cfg.w1_max)
+    cf3 = 0.5*(cfg.w3_min + cfg.w3_max)
+
     cfg_rephasing = cfg
-    cfg_rephasing.simulation_type = 'rephasing'
+    cfg_rephasing.simulation_type = 'rephasing-ttt'
     cfg_nonrephasing = deepcopy(cfg)
-    cfg_nonrephasing.simulation_type = 'nonrephasing'
+    cfg_nonrephasing.simulation_type = 'nonrephasing-ttt'
 
     simdir = path.parent
 
@@ -51,23 +55,33 @@ def doit(template_yaml):
                              comments='#',
                              delimiter='\t',
                              names=['t3', 't1', 'real', 'imag'])
-        d = int(np.sqrt(rawdata.t1.shape[0]))
-        t3 = rawdata.t3.reshape(d, d)
-        t1 = rawdata.t1.reshape(d, d)
-        data = (rawdata.real + 1j*rawdata.imag).reshape(d, d)
-        outputs.append(data)
+        d = int(np.sqrt(rawdata['t1'].shape[0]))
+        t3 = rawdata['t3'].reshape(d, d)
+        t1 = rawdata['t1'].reshape(d, d)
+        data = (rawdata['real'] + 1j*rawdata['imag']).reshape(d, d)
         data[(0, -1), (0, -1)] *= 0.5
 
-        fdata = np.fft.fft2(data, s=(2*d, 2*d))
-        f1 = np.fft.fftfreq(2*d, abs(t1[1, 0] - t1[0, 0]))
-        f3 = np.fft.fftfreq(2*d, abs(t3[0, 1] - t3[0, 0]))
-        F1, F3 = np.meshgrid(f1, f3)
+        if sim == inpr:
+            mod = -1
+        else:
+            mod = 1
+        data = data*np.exp(-1j*(mod*cf1*t1 + cf3*t3)) # shift freq
+        fdata = np.fft.ifft2(data, s=(d, d))
+        f1 = np.fft.fftfreq(d, abs(t1[1, 0] - t1[0, 0]))
+        f3 = np.fft.fftfreq(d, abs(t3[0, 1] - t3[0, 0]))
         fdata = np.fft.fftshift(fdata)
-        F1 = np.fft.fftshift(F1)
-        F3 = np.fft.fftshift(F3)
+        F1 = np.fft.fftshift(f1)
+        F3 = np.fft.fftshift(f3)
+        F1, F3 = np.meshgrid(F1, F3)
 
-        plt.contour(F1, F3, -1*fdata.imag, 50)
-        plt.savefig(str(sim.with_suffix('.png')))
+        outputs.append(fdata)
+        plot_2d(w3=F3, w1=F1, signal=fdata.imag, path=str(sim.with_suffix('.png')))
+
+    # make absorptive
+    R, NR = outputs[0], outputs[1]
+    ABS = 0.5*(np.roll(R[::-1], shift=-1, axis=0) + NR)
+
+    plot_2d(w3=F3, w1=F1, signal=ABS.imag, path=str(simdir / 'absorptive.png'))
 
 if __name__ == '__main__':
     doit()
