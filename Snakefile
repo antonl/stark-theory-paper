@@ -315,7 +315,8 @@ rule run_ttt_sim:
             files=['rephasing', 'nonrephasing'], exts=['inp', 'outp', 'text'])
     shell:
         "cd simulations/ttt-sim/{wildcards.simdir}; "
-        "python {TTTSIM_PATH} template-cfg.yaml; "
+        "python {TTTSIM_PATH} template-cfg.yaml --limits 14.25 15.25; "
+        #"python {TTTSIM_PATH} template-cfg.yaml; "
 
 rule plot_all_quick:
     input:
