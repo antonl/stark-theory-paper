@@ -65,11 +65,11 @@ def doit(template_yaml):
             mod = -1
         else:
             mod = 1
-        data = data*np.exp(-1j*(mod*cf1*t1 + cf3*t3)) # shift freq
-        fdata = np.fft.ifft2(data, s=(d, d))
+        data = data*np.exp(1j*(mod*cf1*t1 + cf3*t3)) # shift freq
+        fdata = np.fft.ifft2(data, s=(2*d, 2*d))
+        fdata = np.fft.fftshift(fdata)
         f1 = np.fft.fftfreq(d, abs(t1[1, 0] - t1[0, 0]))
         f3 = np.fft.fftfreq(d, abs(t3[0, 1] - t3[0, 0]))
-        fdata = np.fft.fftshift(fdata)
         F1 = np.fft.fftshift(f1)
         F3 = np.fft.fftshift(f3)
         F1, F3 = np.meshgrid(F1, F3)
@@ -79,7 +79,7 @@ def doit(template_yaml):
 
     # make absorptive
     R, NR = outputs[0], outputs[1]
-    ABS = 0.5*(np.roll(R[::-1], shift=-1, axis=0) + NR)
+    ABS = 0.5*(R[::-1] + NR)
 
     plot_2d(w3=F3, w1=F1, signal=ABS.imag, path=str(simdir / 'absorptive.png'))
 
