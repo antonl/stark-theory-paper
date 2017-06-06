@@ -72,11 +72,11 @@ def doit(template_yaml, limits, window):
         t3 = rawdata['t3'].reshape(d, d)
         t1 = rawdata['t1'].reshape(d, d)
         data = (rawdata['real'] + 1j*rawdata['imag']).reshape(d, d)
-        unwindowed = np.real(np.diag(data))
+        unwindowed = np.real(np.diagonal(data).copy())
         unwindowed /= np.max(np.abs(unwindowed))
         data = np.einsum('ij,j->ij', data, window)
         data = np.einsum('ij,i->ij', data, window)
-        windowed = np.real(np.diag(data))
+        windowed = np.real(np.diagonal(data).copy())
         windowed /= np.max(np.abs(windowed))
 
         # plot windowed trace
