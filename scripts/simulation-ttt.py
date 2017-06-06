@@ -93,15 +93,17 @@ def doit(template_yaml, limits, window):
         data = data*np.exp(1j/(2*np.pi)*(mod*cf1*t1 + cf3*t3)) # shift freq
         fdata = np.fft.ifft2(data, s=(2*d, 2*d))
         fdata = np.fft.fftshift(fdata)
-        f1 = 2*np.pi*np.fft.fftfreq(2*d, 2*abs(t1[1, 0] - t1[0, 0]))
-        f3 = 2*np.pi*np.fft.fftfreq(2*d, 2*abs(t3[0, 1] - t3[0, 0]))
-        F1 = np.fft.fftshift(f1)
-        F3 = np.fft.fftshift(f3)
+        #f1 = 2*np.pi*np.fft.fftfreq(2*d, abs(t1[1, 0] - t1[0, 0]))
+        #f3 = 2*np.pi*np.fft.fftfreq(2*d, abs(t3[0, 1] - t3[0, 0]))
+        F1 = np.linspace(cfg.w1_min, cfg.w1_max, cfg.nfreqs)
+        F3 = np.linspace(cfg.w3_min, cfg.w3_max, cfg.nfreqs)
+        #F1 = np.fft.fftshift(f1)
+        #F3 = np.fft.fftshift(f3)
         F1, F3 = np.meshgrid(F1, F3)
         #F1 += cfg.w1_min
         #F3 += cfg.w3_min
-        F1 += cf1
-        F3 += cf3
+        #F1 += cf1
+        #F3 += cf3
 
         outputs.append(fdata.T)
         plot_2d(w3=F3, w1=F1, signal=fdata.imag.T[:, ::mod],
