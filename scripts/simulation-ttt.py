@@ -22,7 +22,8 @@ bin_path = str(pathlib.Path(BINDIR) / 'qcfp.calculator_2dttt_excitons')
                                          dir_okay=False,
                                          readable=True))
 @click.option('--limits', default=(None, None), type=(float, float))
-def doit(template_yaml, limits):
+@click.option('--window/--no-window', default=False)
+def doit(template_yaml, limits, window):
     path = pathlib.Path(template_yaml)
     cfg = pyqcfp.QcfpConfig.from_yaml_file(str(path))
     cfg.stark_perturbation = False
@@ -46,9 +47,13 @@ def doit(template_yaml, limits):
     with open(str(inpnr), 'w') as f:
         f.write(render_template(cfg_nonrephasing))
 
-    #window = get_window(('general_gaussian', 2, 200), cfg.nfreqs,
-    #        fftbins=True)[:cfg.nfreqs//2]
-    window = np.ones((cfg.nfreqs//2))
+    if window:
+        window = get_window(('general_gaussian', 2, 200), cfg.nfreqs,
+                fftbins=True)[:cfg.nfreqs//2]
+    else:
+        window = np.ones((cfg.nfreqs//2,))
+
+    # always scale the ends
     window[0] *= 0.5
     window[-1] *= 0.5
 
@@ -67,8 +72,13 @@ def doit(template_yaml, limits):
         t3 = rawdata['t3'].reshape(d, d)
         t1 = rawdata['t1'].reshape(d, d)
         data = (rawdata['real'] + 1j*rawdata['imag']).reshape(d, d)
+        # plot windowed trace
+        plt.figure()
+        plt.plot(np.diag(t3), np.real(np.diag(data)))
         data = np.einsum('ij,j->ij', data, window)
         data = np.einsum('ij,i->ij', data, window)
+        plt.plot(np.diag(t3), np.real(np.diag(data)))
+        plt.savefig(str(sim.with_suffix('')) + '-windowed.png')
 
         if sim == inpr:
             mod = -1
