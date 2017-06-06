@@ -83,6 +83,7 @@ def doit(template_yaml, limits, window):
         plt.figure()
         plt.plot(np.diag(t3), unwindowed)
         plt.plot(np.diag(t3), windowed)
+        plt.plot(np.diag(t3), window)
         plt.savefig(str(sim.with_suffix('')) + '-windowed.png')
 
         if sim == inpr:
