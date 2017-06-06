@@ -48,8 +48,8 @@ def doit(template_yaml, limits, window):
         f.write(render_template(cfg_nonrephasing))
 
     if window:
-        window = get_window(('general_gaussian', 2, 200), cfg.nfreqs,
-                fftbins=True)[:cfg.nfreqs//2]
+        window = get_window(('general_gaussian', 2, 100), cfg.nfreqs,
+                fftbins=True)[cfg.nfreqs//2:]
     else:
         window = np.ones((cfg.nfreqs//2,))
 
