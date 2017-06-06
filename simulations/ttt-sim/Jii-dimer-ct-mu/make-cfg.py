@@ -129,7 +129,7 @@ cfg.spectral_density_paths = [
 ]
 cfg.zpl_fwhm = 1.0
 
-lamb_cor = 505.332 # reorganization energy correction
+lamb_cor = 278.2 # reorganization energy correction
 cfg.system_hamiltonian = (np.array(cfg.system_hamiltonian) - lamb_cor*np.eye(
     cfg.nsites)).tolist()
 
