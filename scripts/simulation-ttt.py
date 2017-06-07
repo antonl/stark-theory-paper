@@ -69,8 +69,32 @@ def doit(template_yaml, limits, window):
                              delimiter='\t',
                              names=['t3', 't1', 'real', 'imag'])
         d = int(np.sqrt(rawdata['t1'].shape[0]))
-        t3 = rawdata['t3'].reshape(d, d)
-        t1 = rawdata['t1'].reshape(d, d)
+        t1 = 2*rawdata['t1'].reshape(d, d)
+        t3 = 2*rawdata['t3'].reshape(d, d)
+
+        # try generating the same time axis:
+        freF3 = cfg.w3_max - cfg.w3_min
+        freS3 = freF3/cfg.nfreqs
+        timeS3 = 2*np.pi/freF3
+
+        freF1 = cfg.w1_max - cfg.w1_min
+        freS1 = freF1/cfg.nfreqs
+        timeS1 = 2*np.pi/freF1
+
+        #t1 = timeS1*np.arange(0, cfg.nfreqs//2)
+        #t3 = timeS3*np.arange(0, cfg.nfreqs//2)
+        #t3, t1 = np.meshgrid(t3, t1)
+
+        dt1 = abs(t1[1, 0] - t1[0, 0])
+        dt3 = abs(t3[0, 1] - t3[0, 0])
+        
+        print('F3 range: {:f}, F3 step: {:f}, T3 step: {:f}'.format(freF3,
+            freS3, timeS3))
+        print('Extracted dt3: {:f}'.format(dt3))
+        print('F1 range: {:f}, F1 step: {:f}, T1 step: {:f}'.format(freF1,
+            freS1, timeS1))
+        print('Extracted dt1: {:f}'.format(dt1))
+        
         data = (rawdata['real'] + 1j*rawdata['imag']).reshape(d, d)
         unwindowed = np.real(np.diagonal(data).copy())
         unwindowed /= np.max(np.abs(unwindowed))
@@ -90,28 +114,28 @@ def doit(template_yaml, limits, window):
             mod = -1
         else:
             mod = 1
-        data = data*np.exp(1j/(2*np.pi)*(mod*cf1*t1 + cf3*t3)) # shift freq
+
+        data = data*np.exp(1j*(mod*cf1*t1 + cf3*t3)) # shift freq
         fdata = np.fft.ifft2(data, s=(2*d, 2*d))
         fdata = np.fft.fftshift(fdata)
-        #f1 = 2*np.pi*np.fft.fftfreq(2*d, abs(t1[1, 0] - t1[0, 0]))
-        #f3 = 2*np.pi*np.fft.fftfreq(2*d, abs(t3[0, 1] - t3[0, 0]))
-        F1 = np.linspace(cfg.w1_min, cfg.w1_max, cfg.nfreqs)
-        F3 = np.linspace(cfg.w3_min, cfg.w3_max, cfg.nfreqs)
-        #F1 = np.fft.fftshift(f1)
-        #F3 = np.fft.fftshift(f3)
+
+        f1 = 2*np.pi*np.fft.fftfreq(2*d, dt1)
+        f3 = 2*np.pi*np.fft.fftfreq(2*d, dt3)
+        F1 = np.fft.fftshift(f1)
+        F3 = np.fft.fftshift(f3)
         F1, F3 = np.meshgrid(F1, F3)
         #F1 += cfg.w1_min
         #F3 += cfg.w3_min
-        #F1 += cf1
-        #F3 += cf3
+        F1 += cf1
+        F3 += cf3
 
         outputs.append(fdata.T)
-        plot_2d(w3=F3, w1=F1, signal=fdata.imag.T[:, ::mod],
+        plot_2d(w3=F3, w1=F1, signal=fdata.imag.T, 
                 path=str(sim.with_suffix('.png')), axlim=limits)
 
     # make absorptive
     R, NR = outputs[0], outputs[1]
-    ABS = (np.roll(R[:, ::-1], axis=1, shift=0) + NR)*(2*d)**2
+    ABS = (R[:, ::-1]+ NR)*(2*d)**2
 
     plot_2d(w3=F3, w1=F1, signal=ABS.imag, path=str(simdir / 'absorptive.png'),
             axlim=limits)

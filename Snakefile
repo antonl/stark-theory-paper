@@ -312,11 +312,39 @@ rule run_ttt_sim:
         "simulations/ttt-sim/{simdir}/template-cfg.yaml",
     output:
         expand("simulations/ttt-sim/{{simdir}}/{files}.{exts}",
-            files=['rephasing', 'nonrephasing'], exts=['inp', 'outp', 'text'])
-    shell:
-        "cd simulations/ttt-sim/{wildcards.simdir}; "
-        "python {TTTSIM_PATH} template-cfg.yaml --limits 14.25 15.25; "
-        #"python {TTTSIM_PATH} template-cfg.yaml; "
+            files=['rephasing', 'nonrephasing'], exts=['inp', 'outp', 'text']),
+        expand("simulations/ttt-sim/{{simdir}}/{files}-{wn}.png",
+            files=['absorptive', 'rephasing', 'nonrephasing', 'rephasing-windowed',
+            'nonrephasing-windowed'], wn=['rect', 'gauss'])
+    run:
+        files = expand("simulations/ttt-sim/{simdir}/{files}.png",
+                files=['absorptive', 'rephasing', 'nonrephasing', 'rephasing-windowed',
+                'nonrephasing-windowed'], simdir=wildcards.simdir)
+
+        shell("cd simulations/ttt-sim/{wildcards.simdir}; "
+        "python {TTTSIM_PATH} template-cfg.yaml --limits 14.25 15.25; ")
+        #"python {TTTSIM_PATH} template-cfg.yaml;")
+
+        for p in [pathlib.Path(n) for n in files]:
+            s = p.with_suffix('')
+            s = s.with_name(s.name + '-rect').with_suffix('.png')
+            shell("mv {inp} {outp}", inp=str(p), outp=str(s))
+
+        shell("cd simulations/ttt-sim/{wildcards.simdir}; "
+        "python {TTTSIM_PATH} template-cfg.yaml --window --limits 14.25 15.25;")
+        #"python {TTTSIM_PATH} template-cfg.yaml --window;")
+
+        for p in [pathlib.Path(n) for n in files]:
+            s = p.with_suffix('')
+            s = s.with_name(s.name + '-gauss').with_suffix('.png')
+            shell("mv {inp} {outp}", inp=str(p), outp=str(s))
+
+rule run_all_ttt:
+    input:
+        expand("simulations/ttt-sim/{simdir}/rephasing.outp",
+            simdir=[
+            'Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu',
+            'Jii-monomer-mu', 'Jii-dimer-mu', 'Jii-dimer-ct-mu'])
 
 rule plot_all_quick:
     input:
@@ -359,7 +387,7 @@ rule clean_sim:
     output:
         temp("{simdir}/.clean")
     shell:
-        "rm -f {wildcards.simdir}/*.{{wrk,txt,yaml,h5}};"
+        "rm -f {wildcards.simdir}/*.{{wrk,txt,yaml,h5,inp,outp,png,text}};"
         "rm -rf {wildcards.simdir}/figures;"
         "touch {wildcards.simdir}/.clean"
 
@@ -368,6 +396,12 @@ rule clean_voltage_dependence:
         "simulations/voltage-dependence/Ji-monomer-mu/.clean",
         "simulations/voltage-dependence/Ji-dimer-mu/.clean",
         "simulations/voltage-dependence/Ji-dimer-ct-mu/.clean",
+
+rule clean_ttt:
+    input:
+        expand("simulations/ttt-sim/{simdir}/.clean",
+            simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu',
+                    'Jii-monomer-mu', 'Jii-dimer-mu', 'Jii-dimer-ct-mu'])
 
 rule clean_all:
     input:
