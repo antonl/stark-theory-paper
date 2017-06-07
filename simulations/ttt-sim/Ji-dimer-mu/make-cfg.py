@@ -46,7 +46,7 @@ cfg.simulation_code = 'excitons-2d'
 #cfg.simulation_type = 'absorption'
 #cfg.simulation_code = 'excitons-abs'
 cfg.full_output = False
-cfg.analytic_orientational_averaging = False
+cfg.analytic_orientational_averaging = True
 cfg.return_axes = False
 
 metacfg.tmpdir = str(TMPDIR)
@@ -57,8 +57,8 @@ metacfg.randstate = [0,[0,],0]
 metacfg.chunksize = 1
 metacfg.mesh_size = 11,13
 metacfg.save_plots = True
-metacfg.use_rotations = True
-metacfg.use_stark = True
+metacfg.use_rotations = False
+metacfg.use_stark = False
 metacfg.use_staticdisorder = False
 cfg.stark_perturbation = metacfg.use_stark
 
