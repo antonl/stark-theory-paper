@@ -130,7 +130,7 @@ def doit(template_yaml, limits, window):
         F3 += cf3
 
         outputs.append(fdata.T)
-        plot_2d(w3=F3, w1=F1, signal=fdata.imag.T, 
+        plot_2d(w3=F3, w1=F1, signal=fdata.imag.T[:, ::mod], 
                 path=str(sim.with_suffix('.png')), axlim=limits)
 
     # make absorptive

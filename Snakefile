@@ -359,6 +359,11 @@ rule plot_all_grid_size:
             simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu'], 
             size=['small', 'medium', 'large'])
 
+rule plot_all_complex_dephasing:
+    input:
+        expand("simulations/compare-dephasing/{simdir}/figures/2d-real.png",
+            simdir=['Ji-monomer', 'Ji-dimer'])
+
 rule plot_all_quick:
     input:
         "simulations/quick/Ji-monomer-mu/figures/2d-reference.png",
