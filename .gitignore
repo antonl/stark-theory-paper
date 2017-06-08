@@ -12,3 +12,6 @@ outp*.outp
 *.png
 .idea
 figures
+__pycache__
+*.inp
+*.outp

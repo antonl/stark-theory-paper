@@ -15,6 +15,7 @@ SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
 MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
 PLOTSCRIPT_PATH=str(pathlib.Path('scripts/make-plots.py').absolute())
 DEPHASINGPLOTSCRIPT_PATH=str(pathlib.Path('scripts/compare-dephasing-flag.py').absolute())
+MKANALYTICPLOTSCRIPT_PATH=str(pathlib.Path('scripts/make-analytic-plot.py').absolute())
 MKVOLT_PATH=str(pathlib.Path('scripts/make-cfg-voltage-dependence.py').absolute())
 MKDDESSPLOT_PATH=str(pathlib.Path('scripts/make-ddess-plot.py').absolute())
 MKLINEARPLOT_PATH=str(pathlib.Path('scripts/make-linear-plot.py').absolute())
@@ -154,9 +155,6 @@ rule plot_compare_complex_dephasing:
     shell:
         "cd simulations/compare-dephasing/{wildcards.simdir};"
         "python {DEPHASINGPLOTSCRIPT_PATH} . -c {threads} --limits 14.25 15.25 --fudge-factor 6.6; "
-
-ruleorder:
-    prepare_complex_dephasing > prep_ddess_sim
 
 rule run_linear_sim:
     input:
@@ -346,6 +344,21 @@ rule run_all_ttt:
             'Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu',
             'Jii-monomer-mu', 'Jii-dimer-mu', 'Jii-dimer-ct-mu'])
 
+rule plot_grid_size:
+    input:
+        "simulations/scan-grid-size/{simdir}/pump-probe.h5"
+    output:
+        "simulations/scan-grid-size/{simdir}/figures/2d-reference.png"
+    shell:
+        "cd simulations/scan-grid-size/{wildcards.simdir};"
+        "python {MKANALYTICPLOTSCRIPT_PATH} pump-probe.h5 --limits 14.25 15.25"
+
+rule plot_all_grid_size:
+    input:
+        expand("simulations/scan-grid-size/{simdir}-{size}/figures/2d-reference.png",
+            simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu'], 
+            size=['small', 'medium', 'large'])
+
 rule plot_all_quick:
     input:
         "simulations/quick/Ji-monomer-mu/figures/2d-reference.png",
@@ -403,6 +416,12 @@ rule clean_ttt:
             simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu',
                     'Jii-monomer-mu', 'Jii-dimer-mu', 'Jii-dimer-ct-mu'])
 
+rule clean_scan_grid:
+    input:
+        expand("simulations/scan-grid-size/{simdir}-{size}/.clean",
+            simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu'],
+            size=['small', 'medium', 'large'])
+
 rule clean_all:
     input:
         # quick simulations
@@ -423,3 +442,8 @@ rule clean_all:
         "simulations/large-mesh/Ji-dimer-ct-mu/.clean",
         "simulations/large-mesh/Ji-dimer-ct-alpha/.clean",
 
+ruleorder:
+    prepare_complex_dephasing > prep_ddess_sim
+
+ruleorder:
+    plot_grid_size > plot_sim_results
