@@ -40,7 +40,7 @@ cfg = QcfpConfig()
 
 # meta info
 cfg.simulation_id = 0
-cfg.simulation_group = 'Ji-monomer-mu-small'
+cfg.simulation_group = 'Ji-monomer-mu-medium'
 cfg.simulation_type = 'pump-probe'
 cfg.simulation_code = 'excitons-2d'
 #cfg.simulation_type = 'absorption'
