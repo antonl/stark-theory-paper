@@ -33,6 +33,7 @@ PLOT_FILES_LINEAR = ['linear-reference.png',
                      'linear-stark.png',]
                      #'linear-projections.png',
                      #'linear-stark-projections.png']
+
 rule make_spectral_densities:
     input:
         "rawdata/oscillator-modes.csv"
@@ -427,25 +428,59 @@ rule clean_scan_grid:
             simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu'],
             size=['small', 'medium', 'large'])
 
+rule clean_quick:
+    input:
+        expand("simulations/quick/{simdir}/.clean",
+            simdir=[
+                'Ji-monomer-mu', 
+                'Ji-monomer-alpha',
+                'Ji-dimer-mu', 
+                'Ji-dimer-mu-uncoupled', 
+                'Ji-dimer-alpha', 
+                'Ji-dimer-ct-mu',
+                'Ji-dimer-ct-alpha',
+                'Ji-dimer-ct-mu']),
+
+rule clean_compare_dephasing:
+    input:
+        expand("simulations/compare-dephasing/{simdir}/.clean",
+            simdir=['Ji-monomer', 'Ji-dimer',])
+
+rule clean_large_mesh:
+    input:
+        expand("simulations/large-mesh/{simdir}/.clean",
+            simdir=[
+                'Ji-monomer-mu', 
+                'Ji-monomer-alpha',
+                'Ji-dimer-mu', 
+                'Ji-dimer-mu-uncoupled', 
+                'Ji-dimer-alpha', 
+                'Ji-dimer-ct-mu',
+                'Ji-dimer-ct-alpha',
+                'Ji-dimer-ct-mu']),
+
 rule clean_all:
     input:
         # quick simulations
-        "simulations/quick/Ji-monomer-mu/.clean",
-        "simulations/quick/Ji-monomer-alpha/.clean",
-        "simulations/quick/Ji-dimer-mu/.clean",
-        "simulations/quick/Ji-dimer-mu-uncoupled/.clean",
-        "simulations/quick/Ji-dimer-ct-mu/.clean",
-        "simulations/quick/Ji-dimer-ct-alpha/.clean",
+        rules.clean_quick.input,
         # compare no complex dephasing flag
-        "simulations/compare-dephasing/Ji-monomer/.clean",
-        "simulations/compare-dephasing/Ji-dimer/.clean",
+        rules.clean_compare_dephasing.input,
         # large mesh simulations
-        "simulations/large-mesh/Ji-monomer-mu/.clean",
-        "simulations/large-mesh/Ji-monomer-alpha/.clean",
-        "simulations/large-mesh/Ji-dimer-mu/.clean",
-        "simulations/large-mesh/Ji-dimer-mu-uncoupled/.clean",
-        "simulations/large-mesh/Ji-dimer-ct-mu/.clean",
-        "simulations/large-mesh/Ji-dimer-ct-alpha/.clean",
+        rules.clean_large_mesh.input,
+        # time-domain sims
+        rules.clean_ttt.input,
+        # grid scan
+        rules.clean_scan_grid.input,
+        # voltage dependence
+        rules.clean_voltage_dependence.input,
+
+rule run_all:
+    input:
+        plot_all_quick.input,
+        plot_all_large_mesh.input,
+        plot_all_voltage_dependence.input,
+        plot_all_complex_dephasing.input,
+        run_all_ttt.input,
 
 ruleorder:
     prepare_complex_dephasing > prep_ddess_sim
