@@ -114,7 +114,7 @@ d_tr_ct = 0.0 # Debye
 
 # Static dipole magnitude in Debye
 d_st = 1.41 # Debye
-d_st_ct = 0. # Debye
+d_st_ct = 40. # Debye
 
 # Trace of polarizability
 tr_alpha = 0. # A3
