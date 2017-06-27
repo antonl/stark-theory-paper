@@ -45,7 +45,7 @@ def doit(file, limits, scale):
 
     # prepare folder for writing things
     p = Path(path)
-    figpath = (p.parent / 'figures' / p.with_suffix('').name)
+    figpath = (p.parent / 'figures')
     #print('Figure path: ', str(figpath))
     figpath.mkdir(exist_ok=True, parents=True)
 
