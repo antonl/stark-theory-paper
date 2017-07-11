@@ -45,7 +45,7 @@ Jlowfreq = 2*lambda_low*omega_low*gamma_low/(omega_low**2 + gamma_low**2)
 
 # add a vibrational mode to Ji
 V_mode = 150.
-V_strength = 0.5
+V_strength = 0.05
 V = Ji.copy()
 V_lambda = V_mode*V_strength
 ogj = V_mode*gammaj
