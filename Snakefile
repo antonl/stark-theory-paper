@@ -478,11 +478,11 @@ rule clean_all:
 
 rule run_all:
     input:
-        plot_all_quick.input,
-        plot_all_large_mesh.input,
-        plot_all_voltage_dependence.input,
-        plot_all_complex_dephasing.input,
-        run_all_ttt.input,
+        rules.plot_all_quick.input,
+        rules.plot_all_large_mesh.input,
+        rules.plot_all_voltage_dependence.input,
+        rules.plot_all_complex_dephasing.input,
+        rules.run_all_ttt.input,
 
 ruleorder:
     prepare_complex_dephasing > prep_ddess_sim
