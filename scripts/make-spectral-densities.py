@@ -50,6 +50,7 @@ V = Ji.copy()
 V_lambda = V_mode*V_strength
 ogj = V_mode*gammaj
 V += 2*V_lambda*V_mode**2*(ogj/((V_mode**2 - omega**2)**2 + ogj**2))
+print(lambdah - lambda0 + V_lambda)
 
 # superohmic form
 So_w = 1.

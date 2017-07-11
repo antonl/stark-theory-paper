@@ -55,7 +55,7 @@ metacfg.outputdir = str(OUTPUTDIR)
 
 metacfg.randstate = [0,[0,],0]
 metacfg.chunksize = 1
-metacfg.mesh_size = 5,5
+metacfg.mesh_size = 15,17
 metacfg.save_plots = True
 metacfg.use_rotations = True
 metacfg.use_stark = True
@@ -129,7 +129,8 @@ cfg.spectral_density_paths = [
 ]
 cfg.zpl_fwhm = 1.0
 
-lamb_cor = 505.332 # reorganization energy correction
+#lamb_cor = 505.332 # reorganization energy correction
+lamb_cor = 482. # reorganization energy correction
 cfg.system_hamiltonian = (np.array(cfg.system_hamiltonian) - lamb_cor*np.eye(
     cfg.nsites)).tolist()
 
