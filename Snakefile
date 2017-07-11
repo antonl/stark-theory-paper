@@ -42,6 +42,8 @@ rule make_spectral_densities:
         "spectral-densities/Jii-spd.txt",
         "spectral-densities/Jlowfreq-spd.txt",
         "spectral-densities/Jnjp-spd.txt",
+        "spectral-densities/V-spd.txt",
+        "spectral-densities/Jso-spd.txt",
         "spectral-densities/sims-spectral-densities.png"
     shell:
         "cd spectral-densities;"
@@ -377,6 +379,14 @@ rule plot_all_quick:
         "simulations/quick/Ji-dimer-ct-mu/figures/2d-reference.png",
         "simulations/quick/Ji-dimer-ct-alpha/figures/2d-reference.png",
 
+rule plot_all_single_mode:
+    input:
+        expand("simulations/single-mode/{simdir}/figures/2d-reference.png",
+            simdir=[
+                'V-monomer-mu', 'V-monomer-alpha', 
+                'V-dimer-mu', 'V-dimer-alpha',
+                'V-dimer-ct-mu', 'V-dimer-ct-alpha'])
+
 rule plot_all_large_mesh:
     input:
         "simulations/large-mesh/Ji-monomer-mu/figures/2d-reference.png",
@@ -480,6 +490,7 @@ rule run_all:
     input:
         rules.plot_all_quick.input,
         rules.plot_all_large_mesh.input,
+        rules.plot_all_grid_size.input,
         rules.plot_all_voltage_dependence.input,
         rules.plot_all_complex_dephasing.input,
         rules.run_all_ttt.input,
