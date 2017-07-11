@@ -43,7 +43,20 @@ lambda_low = 85
 gamma_low = 0.33356
 Jlowfreq = 2*lambda_low*omega_low*gamma_low/(omega_low**2 + gamma_low**2)
 
+# add a vibrational mode to Ji
+V_mode = 150.
+V_strength = 0.5
+V = Ji.copy()
+V_lambda = V_mode*V_strength
+ogj = V_mode*gammaj
+V += 2*V_lambda*V_mode**2*(ogj/((V_mode**2 - omega**2)**2 + ogj**2))
 
+# superohmic form
+So_w = 1.
+So_cutoff = 10.
+So_s = 3
+So_strength = 0.4
+Jso = So_strength*(omega/So_w)**(So_s - 1)*omega*np.exp(-omega/So_cutoff)
 
 for idx, (wj, Sj) in modes.iterrows():
     if wj > 1000:
@@ -74,14 +87,16 @@ ax = fig.add_subplot(111)
 
 ji_line, = ax.plot(omega, Ji, ls='--')
 jii_line, = ax.plot(omega, Jii)
-jiii_line, = ax.plot(omega, Jiii, zorder=-1)
-jnjp_line, = ax.plot(omega, Jnjp)
-jlow_line, = ax.plot(omega_low, Jlowfreq)
-jgauss_line, = ax.plot(omega, Jgauss)
+#jiii_line, = ax.plot(omega, Jiii, zorder=-1)
+#jnjp_line, = ax.plot(omega, Jnjp)
+#jlow_line, = ax.plot(omega_low, Jlowfreq)
+#jgauss_line, = ax.plot(omega, Jgauss)
+jv_line, = ax.plot(omega, V)
+jso_line, = ax.plot(omega, Jso)
 
 print(ji_line.get_color())
-print(jii_line.get_color())
-print(jiii_line.get_color())
+#print(jii_line.get_color())
+#print(jiii_line.get_color())
 ax.semilogy()
 ax.set_ylim(10e-1, 1e5)
 ax.set_xlim(0, 2500)
@@ -115,3 +130,7 @@ with open('../spectral-densities/Jlowfreq-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega_low, Jlowfreq))
 with open('../spectral-densities/Jgauss-spd.txt', 'w') as f:
     f.write(render_spectral_density(omega, Jgauss))
+with open('../spectral-densities/V-spd.txt', 'w') as f:
+    f.write(render_spectral_density(omega, V))
+with open('../spectral-densities/Jso-spd.txt', 'w') as f:
+    f.write(render_spectral_density(omega, Jso))
