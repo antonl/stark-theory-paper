@@ -60,6 +60,8 @@ rule prep_ddess_sim:
         "{simdir}/Jii-spd.txt",
         "{simdir}/Jlowfreq-spd.txt",
         "{simdir}/Jnjp-spd.txt",
+        "{simdir}/V-spd.txt",
+        "{simdir}/Jso-spd.txt",
     output:
         "{simdir}/template-cfg.yaml",
         "{simdir}/metacfg.yaml",
@@ -356,7 +358,7 @@ rule plot_grid_size:
 rule plot_all_grid_size:
     input:
         expand("simulations/scan-grid-size/{simdir}-{size}/figures/2d-reference.png",
-            simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu'], 
+            simdir=['Ji-monomer-mu', 'Ji-dimer-mu', 'Ji-dimer-ct-mu'],
             size=['small', 'medium', 'large'])
 
 rule plot_all_complex_dephasing:
