@@ -195,9 +195,10 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
 
     ax1.legend()
 
-    ax2.plot(w3, abs.fieldoff, label='field off')
-    ax2.plot(w3, abs.fieldon, label='field on')
-    ax2.plot(w3, abs.fieldon - abs.fieldoff, label='stark')
+    ax2.plot(w3/1e3, abs.fieldoff, label='field off')
+    ax2.plot(w3/1e3, abs.fieldon, label='field on')
+    ax2.plot(w3/1e3, abs.fieldon - abs.fieldoff, label='stark')
+    ax2.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
 
     ax2.legend()
     fig.savefig(str(s))
