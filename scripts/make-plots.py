@@ -87,6 +87,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     redfield = np.diag(redfield)[1:nstates+1]
     dephasingmat = np.array(ddfile['meta/lifetime dephasing matrix'])[:, ::2] + \
                    1j*np.array(ddfile['meta/lifetime dephasing matrix'])[:, 1::2]
+    mu2_trace = np.linalg.norm(np.array(ddfile['00000/meta/ge dipoles'])[..., 2:], axis=-1)**2
 
     cfg = QcfpConfig.from_yaml(str(np.array(ddfile['cfg'])))
     if not cfg.include_complex_lifetimes:
@@ -178,6 +179,28 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
 
     eigenenergies = {'with dephasing': fixed_energies2/1e3,
                      'without dephasing': fixed_energies/1e3}
+
+    # add the localization plot
+    s = str(figpath / 'linear-localization.png')
+    for i in range(1, nstates+1):
+        fig, (ax1, ax2) = subplots(2, 1, sharex=True)
+        weights_trace = mu2_trace*evecs2_trace[:, i, :]
+        heights, bins = np.histogram(corr_energies.reshape(-1)/1e3,
+                                     bins=80,
+                                     weights=weights_trace.reshape(-1),
+                                     density=False)
+        widths = np.diff(bins)
+        ax1.bar(bins[:-1], heights/heights.max(), widths, alpha=0.8,
+                label='site {:d}'.format(i))
+
+    ax1.legend()
+
+    ax2.plot(w3, abs.fieldoff, label='field off')
+    ax2.plot(w3, abs.fieldon, label='field on')
+    ax2.plot(w3, abs.fieldon - abs.fieldoff, label='stark')
+
+    ax2.legend()
+    fig.savefig(str(s))
 
     s = str(figpath / 'linear-reference.png')
     pool.submit(plot_linear, w3=w3, signal=absref, path=s,
