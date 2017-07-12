@@ -182,10 +182,10 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
 
     # add the localization plot
     s = str(figpath / 'linear-localization.png')
+    fig, (ax1, ax2) = subplots(2, 1, sharex=True)
     for i in range(0, nstates):
-        fig, (ax1, ax2) = subplots(2, 1, sharex=True)
         weights_trace = mu2_trace*evecs2_trace[:, i, :]
-        heights, bins = np.histogram(corr_energies.reshape(-1)/1e3,
+        heights, bins = np.histogram(energies_trace.reshape(-1)/1e3,
                                      bins=80,
                                      weights=weights_trace.reshape(-1),
                                      density=False)
@@ -199,6 +199,7 @@ def make_figures(path, limits, ncores, fudge_factor, scale):
     ax2.plot(w3/1e3, abs.fieldon, label='field on')
     ax2.plot(w3/1e3, abs.fieldon - abs.fieldoff, label='stark')
     ax2.set_xlabel(r'$\omega_\tau$ ($\times 10^3\ \mathrm{cm}^{-1}$)')
+    ax2.set_xlim(*limits)
 
     ax2.legend()
     fig.savefig(str(s))
