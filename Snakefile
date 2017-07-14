@@ -10,6 +10,8 @@ OUTPUTDIR=cfg['outputdir']
 THREADS=cfg['threads']
 VD_COUNT=cfg['voltage-dependence-count']
 VD_RANGE_MIN, VD_RANGE_MAX=cfg['voltage-dependence-range']
+POS_COUNT = 5
+POS_RANGE = -400, 400
 
 SIMSCRIPT_PATH=str(pathlib.Path('scripts/simulation-meta.py').absolute())
 MKLIN_PATH=str(pathlib.Path('scripts/make-cfg-linear.py').absolute())
@@ -193,6 +195,32 @@ rule plot_sim_results:
     shell:
         "cd {wildcards.simdir}; "
         "python {PLOTSCRIPT_PATH} . -c {threads} --limits 14.25 15.25 --fudge-factor 0.0; "
+
+rule prepare_position_dependence_ddess:
+    input:
+        "simulations/position-dependence/{simdir}/template-cfg.yaml",
+        "simulations/position-dependence/{simdir}/metacfg.yaml",
+    wildcard_constraints:
+        simdir="[\d\w\-+]+"
+    output:
+        "simulations/position-dependence/{simdir}/site_energy_config.yaml",
+        expand("simulations/position-dependence/{{simdir}}/template-cfg-{field_id:03d}.yaml",
+            field_id=range(POS_COUNT))
+    shell:
+        "cd simulations/voltage-dependence/{wildcards.simdir}; "
+        "python {MKPOS_PATH} --range {POS_RANGE[0]} {POS_RANGE[1]} --count {POS_COUNT} template-cfg.yaml; "
+
+rule run_position_dependence_ddess:
+    input:
+        "simulations/position-dependence/{simdir}/metacfg.yaml",
+        "simulations/position-dependence/{simdir}/template-cfg-{field_id}.yaml",
+    output:
+        "simulations/position-dependence/{simdir}/pump-probe-{field_id}.h5",
+    threads: THREADS
+    shell:
+        "cd simulations/position-dependence/{wildcards.simdir};"
+        "python {SIMSCRIPT_PATH} -c {threads} {input[0]} {input[1]};"
+        "mv pump-probe.h5 {output[0]};"
 
 rule prepare_voltage_dependence_ddess:
     input:
@@ -383,7 +411,7 @@ rule plot_all_single_mode:
     input:
         expand("simulations/single-mode/{simdir}/figures/2d-reference.png",
             simdir=[
-                'V-monomer-mu', 'V-monomer-alpha', 
+                'V-monomer-mu', 'V-monomer-alpha',
                 'V-dimer-mu', 'V-dimer-alpha',
                 'V-dimer-ct-mu', 'V-dimer-ct-alpha'])
 
@@ -444,11 +472,11 @@ rule clean_quick:
     input:
         expand("simulations/quick/{simdir}/.clean",
             simdir=[
-                'Ji-monomer-mu', 
+                'Ji-monomer-mu',
                 'Ji-monomer-alpha',
-                'Ji-dimer-mu', 
-                'Ji-dimer-mu-uncoupled', 
-                'Ji-dimer-alpha', 
+                'Ji-dimer-mu',
+                'Ji-dimer-mu-uncoupled',
+                'Ji-dimer-alpha',
                 'Ji-dimer-ct-mu',
                 'Ji-dimer-ct-alpha',
                 'Ji-dimer-ct-mu']),
@@ -462,11 +490,11 @@ rule clean_large_mesh:
     input:
         expand("simulations/large-mesh/{simdir}/.clean",
             simdir=[
-                'Ji-monomer-mu', 
+                'Ji-monomer-mu',
                 'Ji-monomer-alpha',
-                'Ji-dimer-mu', 
-                'Ji-dimer-mu-uncoupled', 
-                'Ji-dimer-alpha', 
+                'Ji-dimer-mu',
+                'Ji-dimer-mu-uncoupled',
+                'Ji-dimer-alpha',
                 'Ji-dimer-ct-mu',
                 'Ji-dimer-ct-alpha',
                 'Ji-dimer-ct-mu']),
