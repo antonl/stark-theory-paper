@@ -184,6 +184,7 @@ rule plot_sim_results:
                   '2d-fieldoff.png',
                   '2d-stark.png',
                   'linear-reference.png',
+                  'linear-localization.png',
                   'linear-fieldoff.png',
                   'linear-fieldon.png',
                   'linear-stark.png',
